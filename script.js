@@ -216,6 +216,7 @@ function initEmployeeTrendChart() {
     },
     options: {
       responsive:true,
+      maintainAspectRatio: false, 
       scales: {
         x: { title:{display:true,text:'Date'}, ticks:{autoSkip:true, maxRotation:45,minRotation:45} },
         yPieces: { type:'linear',position:'left',beginAtZero:true, title:{display:true,text:'Pieces & SKU/hr'}},

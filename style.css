@@ -244,6 +244,9 @@ html, body {
     padding: 0.5rem;
   }
 
+    #employee-trend-section {
+    height: 300px;
+  }
 }
 
 
