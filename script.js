@@ -231,53 +231,82 @@ function initEmployeeTrendChart() {
 function updateEmployeeTrendChart(raw) {
   const term    = document.getElementById('employee-search').value.trim().toLowerCase();
   const section = document.getElementById('employee-trend-section');
-  if (!term) { section.style.display = 'none'; return; }
+  const metric  = document.getElementById('metric-select').value;
 
-  // apply filters & timeframe
+  // Hide if no employee selected
+  if (!term) {
+    section.style.display = 'none';
+    return;
+  }
+
+  // Apply store/account/timeframe/employee filters
   let filtered = raw.filter(i => {
-    const s = document.getElementById('store-search').value.toLowerCase();
-    if (s && !i.StoreName.toLowerCase().includes(s)) return false;
-    const a = document.getElementById('account-search').value.toLowerCase();
-    if (a && !( (i.AccountName||'').toLowerCase().includes(a) )) return false;
+    // Store filter
+    const storeTerm = document.getElementById('store-search').value.toLowerCase();
+    if (storeTerm && !i.StoreName.toLowerCase().includes(storeTerm)) return false;
+
+    // Account filter
+    const acctTerm = document.getElementById('account-search').value.toLowerCase();
+    if (acctTerm && !( (i.AccountName||'').toLowerCase().includes(acctTerm) )) return false;
+
+    // Timeframe filter
     const tf = document.getElementById('timeframe-select').value;
-    if (tf!=='all') {
+    if (tf !== 'all') {
       const cutoff = new Date();
-      if(tf==='week')  cutoff.setDate(cutoff.getDate()-7);
-      if(tf==='month') cutoff.setMonth(cutoff.getMonth()-1);
-      if (tf === '6month') cutoff.setMonth(cutoff.getMonth() - 6);
-      if(tf==='year')  cutoff.setFullYear(cutoff.getFullYear()-1);
+      if (tf === 'week')  cutoff.setDate(cutoff.getDate() - 7);
+      if (tf === 'month') cutoff.setMonth(cutoff.getMonth() - 1);
+      if (tf === '6month')cutoff.setMonth(cutoff.getMonth() - 6);
+      if (tf === 'year')  cutoff.setFullYear(cutoff.getFullYear() - 1);
       if (new Date(i.DateOfInv) < cutoff) return false;
     }
-    return `${i.FirstName} ${i.LastName}`.toLowerCase() === term;
-  });
-  if (!filtered.length) { section.style.display = 'none'; return; }
 
-  // group & average by day
+    // Exact employee match
+    return (`${i.FirstName} ${i.LastName}`.toLowerCase() === term);
+  });
+
+  // Hide if no data after filtering
+  if (filtered.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  // Group by date and compute daily averages
   const byDate = {};
   filtered.forEach(i => {
-    const d = i.DateOfInv.slice(0,10);
-    if (!byDate[d]) byDate[d] = { p:0, s:0, d:0, c:0 };
-    byDate[d].p += i.PiecesPerHr  || 0;
-    byDate[d].s += i.SkusPerHr    || 0;
-    byDate[d].d += i.DollarPerHr  || 0;
-    byDate[d].c++;
+    const day = i.DateOfInv.slice(0,10); // "YYYY-MM-DD"
+    if (!byDate[day]) byDate[day] = { p:0, s:0, d:0, c:0 };
+    byDate[day].p += i.PiecesPerHr  || 0;
+    byDate[day].s += i.SkusPerHr    || 0;
+    byDate[day].d += i.DollarPerHr  || 0;
+    byDate[day].c++;
   });
+
   const dates       = Object.keys(byDate).sort();
   const piecesData  = dates.map(d => +(byDate[d].p / byDate[d].c).toFixed(2));
   const skuData     = dates.map(d => +(byDate[d].s / byDate[d].c).toFixed(2));
   const dollarsData = dates.map(d => +(byDate[d].d / byDate[d].c).toFixed(2));
 
+  // Update chart data
   section.style.display = 'block';
-  employeeTrendChart.data.labels           = dates;
-  employeeTrendChart.data.datasets[0].data = piecesData;
-  employeeTrendChart.data.datasets[1].data = skuData;
-  employeeTrendChart.data.datasets[2].data = dollarsData;
+  employeeTrendChart.data.labels            = dates;
+  employeeTrendChart.data.datasets[0].data  = piecesData;
+  employeeTrendChart.data.datasets[1].data  = skuData;
+  employeeTrendChart.data.datasets[2].data  = dollarsData;
+
+  // Show/hide lines based on metric dropdown
+  employeeTrendChart.data.datasets[0].hidden = metric !== 'all' && metric !== 'pieces';
+  employeeTrendChart.data.datasets[1].hidden = metric !== 'all' && metric !== 'skus';
+  employeeTrendChart.data.datasets[2].hidden = metric !== 'all' && metric !== 'dollars';
+
+  // Optional: update chart title
   employeeTrendChart.options.plugins.title = {
     display: true,
-    text: `${document.getElementById('employee-search').value.toUpperCase()} – Trend`
+    text: `${document.getElementById('employee-search').value} – Trend`
   };
+
   employeeTrendChart.update();
 }
+
 
 // 11. Sort metricsTable
 function setupMetricsTableSorting() {
