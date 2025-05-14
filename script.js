@@ -598,7 +598,7 @@ function setupAutoSelect() {
   document.querySelectorAll('input').forEach(input => {
     if (typeof input.select === 'function') {
       // select all on focus (e.g. tabbing in)
-      input.addEventListener('focus', () => input.select());
+      input.addEventListener('focus', () => input.value = '');
       // prevent the mouseup from cancelling the selection when clicked
       input.addEventListener('mouseup', e => e.preventDefault());
     }
