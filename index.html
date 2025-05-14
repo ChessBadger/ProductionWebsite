@@ -1,0 +1,73 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Employee Production Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Production Dashboard</h1>
+  </header>
+
+  <main>
+    <section class="controls">
+      <!-- store search with suggestions -->
+      <label>
+        Store:
+        <input list="store-list" id="store-search" placeholder="Type to search…" />
+        <datalist id="store-list"></datalist>
+      </label>
+
+      <!-- employee search -->
+      <label>
+        Employee:
+        <input type="text" id="employee-search" placeholder="Type to search…" />
+      </label>
+
+      <!-- account search -->
+      <label>
+        Account:
+        <input type="text" id="account-search" placeholder="Type to search…" />
+      </label>
+
+      <!-- timeframe -->
+      <label>
+        Timeframe:
+        <select id="timeframe-select">
+          <option value="week">Last Week</option>
+          <option value="month">Last Month</option>
+          <option value="year">Last Year</option>
+          <option value="all" selected>All Time</option>
+        </select>
+      </label>
+    </section>
+
+    <section class="chart-container">
+      <canvas id="metricsChart"></canvas>
+    </section>
+
+    <section class="table-container">
+      <table id="metricsTable">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Account</th>
+            <th>Store</th>
+            <th>Date</th>
+            <th>Pieces/hr</th>
+            <th>$/hr</th>
+            <th>SKU/hr</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
