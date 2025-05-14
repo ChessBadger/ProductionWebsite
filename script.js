@@ -28,7 +28,20 @@ const ACCOUNT_GROUPS = {
     "pigs stinebrinks",
     "pigs stoneridge",
     "pigs tietz"
+  ],
+
+  // ASCENSION 
+  "ascension rx - per k": ["ascension rx - per k", "ascension rx - man hr"],
+  "ascension rx - man hr": ["ascension rx - per k", "ascension rx - man hr"],
+
+  //SCHIERL
+  "FUEL ON": [
+    "relaince fuel, llc",
+    "reliance fuel, llc",
+    "fuel on",
+    "schierl"
   ]
+  
 };
 
 const ACCOUNT_DISPLAY_NAME = {
@@ -45,7 +58,15 @@ const ACCOUNT_DISPLAY_NAME = {
   "pigs ryan o": "PIGGLY WIGGLY",
   "pigs stinebrinks": "PIGGLY WIGGLY",
   "pigs stoneridge": "PIGGLY WIGGLY",
-  "pigs tietz": "PIGGLY WIGGLY"
+  "pigs tietz": "PIGGLY WIGGLY",
+
+  "ascension rx - man hr": "ASCENSION RX",
+  "ascension rx - per k": "ASCENSION RX",
+
+  "schierl": "FUEL ON",
+  "relaince fuel, llc": "FUEL ON",
+  "reliance fuel, llc": "FUEL ON",
+  "fuel on": "FUEL ON"
 };
 
 
