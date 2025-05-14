@@ -10,6 +10,45 @@ let tableSortAsc = false;
 let currentPage = 1;
 const rowsPerPage = 50;
 
+// Account alias groups
+const ACCOUNT_GROUPS = {
+  "mariano's": ["mariano's", "kroger"],
+  "kroger": ["mariano's", "kroger"],
+
+  // PIGGLY WIGGLY aliases
+  "PIGGLY WIGGLY": [
+    "PIGGLY WIGGLY - franchise",
+    "pigs coporate",
+    "pigs fox brothers",
+    "pigs jake b",
+    "pigs malicki",
+    "pigs migel",
+    "pigs mike day",
+    "pigs ryan o",
+    "pigs stinebrinks",
+    "pigs stoneridge",
+    "pigs tietz"
+  ]
+};
+
+const ACCOUNT_DISPLAY_NAME = {
+  "mariano's": "KROGER",
+  "kroger": "KROGER",
+
+  "piggly wiggly - franchise": "PIGGLY WIGGLY",
+  "pigs coporate": "PIGGLY WIGGLY",
+  "pigs fox brothers": "PIGGLY WIGGLY",
+  "pigs jake b": "PIGGLY WIGGLY",
+  "pigs malicki": "PIGGLY WIGGLY",
+  "pigs migel": "PIGGLY WIGGLY",
+  "pigs mike day": "PIGGLY WIGGLY",
+  "pigs ryan o": "PIGGLY WIGGLY",
+  "pigs stinebrinks": "PIGGLY WIGGLY",
+  "pigs stoneridge": "PIGGLY WIGGLY",
+  "pigs tietz": "PIGGLY WIGGLY"
+};
+
+
 // Debounce helper
 function debounce(fn, delay = 300) {
   let timer;
@@ -263,7 +302,11 @@ function updateEmployeeTrendChart(raw) {
 
     // Account filter
     const acctTerm = document.getElementById('account-search').value.toLowerCase();
-    if (acctTerm && !( (i.AccountName||'').toLowerCase().includes(acctTerm) )) return false;
+    const acctName = (i.AccountName || '').toLowerCase();
+    const acctGroup = ACCOUNT_GROUPS[acctTerm] || [acctTerm];
+    if (acctTerm && !acctGroup.includes(acctName)) return false;
+
+
 
     // Timeframe filter
     const tf = document.getElementById('timeframe-select').value;
@@ -364,7 +407,7 @@ function renderTable(data) {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td data-label="Employee">${item.FirstName} ${item.LastName}</td>
-      <td data-label="Account">${item.AccountName||''}</td>
+      <td data-label="Account">${ACCOUNT_DISPLAY_NAME[(item.AccountName||'').toLowerCase()] || item.AccountName || ''}</td>
       <td data-label="Store">${item.StoreName}</td>
       <td data-label="Date">${new Date(item.DateOfInv).toLocaleDateString()}</td>
       <td data-label="Pieces/hr">${(item.PiecesPerHr||0).toFixed(2)}</td>
@@ -394,7 +437,11 @@ function updateView(raw) {
     if (storeTerm && !i.StoreName.toLowerCase().includes(storeTerm)) return false;
     const name = `${i.FirstName} ${i.LastName}`.toLowerCase();
     if (empTerm && !name.includes(empTerm)) return false;
-    if (acctTerm && !( (i.AccountName||'').toLowerCase().includes(acctTerm) )) return false;
+    const acctTerm = document.getElementById('account-search').value.toLowerCase();
+    const acctName = (i.AccountName || '').toLowerCase();
+    const acctGroup = ACCOUNT_GROUPS[acctTerm] || [acctTerm];
+    if (acctTerm && !acctGroup.includes(acctName)) return false;
+
     if (tf!=='all') {
       const cutoff = new Date(now);
       if (tf==='week')  cutoff.setDate(cutoff.getDate()-7);
@@ -577,7 +624,10 @@ function updateDatalists() {
   // 1) Employees: filter rawData by Account & Store
   const empOptions = Array.from(new Set(
     rawData
-      .filter(i => (!accVal || i.AccountName === accVal) &&
+      .filter(i => (() => {
+  const acctList = ACCOUNT_GROUPS[accVal.toLowerCase()] || [accVal.toLowerCase()];
+  return !accVal || acctList.includes((i.AccountName || '').toLowerCase());
+})() &&
                    (!storeVal || i.StoreName   === storeVal))
       .map(i => `${i.FirstName} ${i.LastName}`)
   )).sort();
