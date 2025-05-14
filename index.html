@@ -17,16 +17,18 @@
     <section class="controls">
       <label>
         Store:
-        <input list="store-list" id="store-search" placeholder="Type to search…" />
+        <input list="store-list" id="store-search" placeholder="Type to search…" autocomplete="off"/>
         <datalist id="store-list"></datalist>
       </label>
       <label>
         Employee:
-        <input type="text" id="employee-search" placeholder="Type to search…" />
+        <input list="employee-list" id="employee-search" placeholder="Type to search…" autocomplete="off" />
+        <datalist id="employee-list"></datalist>
       </label>
       <label>
         Account:
-        <input type="text" id="account-search" placeholder="Type to search…" />
+        <input list="account-list" id="account-search" placeholder="Type to search…" autocomplete="off"/>
+        <datalist id="account-list"></datalist>
       </label>
       <label>
         Metric:
@@ -52,7 +54,7 @@
       </label>
     </section>
 
-     <!-- Toggle button for full averages -->
+    <!-- Toggle button for full averages -->
     <section class="controls">
       <button id="toggle-avg-btn">Show All Averages</button>
     </section>
@@ -61,22 +63,22 @@
     <section class="chart-container">
       <canvas id="metricsChart"></canvas>
     </section>
-    
-        <!-- All‐employees averages table (hidden by default) -->
- <section class="table-container" id="avg-section" style="display:none;">
-  <h2>All Employee Averages</h2>
-  <table id="avgTable">
-    <thead>
-      <tr>
-        <th class="sortable" data-key="name">Employee</th>
-        <th class="sortable" data-key="pieces">Pieces/hr</th>
-        <th class="sortable" data-key="dollars">$/hr</th>
-        <th class="sortable" data-key="skus">SKU/hr</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</section>
+
+    <!-- All‐employees averages table (hidden by default) -->
+    <section class="table-container" id="avg-section" style="display:none;">
+      <h2>All Employee Averages</h2>
+      <table id="avgTable">
+        <thead>
+          <tr>
+            <th class="sortable" data-key="name">Employee</th>
+            <th class="sortable" data-key="pieces">Pieces/hr</th>
+            <th class="sortable" data-key="dollars">$/hr</th>
+            <th class="sortable" data-key="skus">SKU/hr</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
 
     <!-- Raw filtered records table -->
     <section class="table-container">
@@ -96,6 +98,7 @@
       </table>
     </section>
   </main>
+
   <script src="script.js"></script>
 </body>
 </html>

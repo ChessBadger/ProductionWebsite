@@ -1,4 +1,4 @@
-// script.js (full file with sorting support for avgTable)
+// script.js
 
 // 1. Load and unwrap JSON
 async function loadData() {
@@ -7,7 +7,7 @@ async function loadData() {
   return json.EmployeeProductionExportLashaun;
 }
 
-// 2. Populate store datalist
+// 2. Populate datalists for suggestions
 function initStoreDatalist(data) {
   const list   = document.getElementById('store-list');
   const stores = Array.from(new Set(data.map(i => i.StoreName))).sort();
@@ -15,6 +15,32 @@ function initStoreDatalist(data) {
   stores.forEach(s => {
     const opt = document.createElement('option');
     opt.value = s;
+    list.appendChild(opt);
+  });
+}
+
+function initEmployeeDatalist(data) {
+  const list      = document.getElementById('employee-list');
+  const employees = Array.from(new Set(
+    data.map(i => `${i.FirstName} ${i.LastName}`)
+  )).sort();
+  list.innerHTML = '';
+  employees.forEach(e => {
+    const opt = document.createElement('option');
+    opt.value = e;
+    list.appendChild(opt);
+  });
+}
+
+function initAccountDatalist(data) {
+  const list     = document.getElementById('account-list');
+  const accounts = Array.from(new Set(
+    data.map(i => i.AccountName || '')
+  )).filter(a => a).sort();
+  list.innerHTML = '';
+  accounts.forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a;
     list.appendChild(opt);
   });
 }
@@ -57,7 +83,7 @@ function renderTable(data) {
   });
 }
 
-// 5. Init Chart.js
+// 5. Initialize Chart.js
 let chart, rawData, avgRows = [];
 function initChart() {
   const ctx = document.getElementById('metricsChart').getContext('2d');
@@ -101,19 +127,19 @@ function updateChart(rows) {
   const topN   = Math.max(1, parseInt(document.getElementById('top-n').value) || 10);
 
   let sorted = [...rows];
-  if (metric === 'pieces')   sorted.sort((a,b)=>b.pieces-a.pieces);
-  else if (metric === 'skus')sorted.sort((a,b)=>b.skus  -a.skus);
-  else if (metric === 'dollars')sorted.sort((a,b)=>b.dollars-a.dollars);
-  else sorted.sort((a,b)=>b.pieces-a.pieces);
+  if (metric === 'pieces')    sorted.sort((a,b)=>b.pieces - a.pieces);
+  else if (metric === 'skus') sorted.sort((a,b)=>b.skus   - a.skus);
+  else if (metric === 'dollars') sorted.sort((a,b)=>b.dollars - a.dollars);
+  else sorted.sort((a,b)=>b.pieces - a.pieces);
 
   const sliced = sorted.slice(0, topN);
   chart.data.labels           = sliced.map(r=>r.name);
   chart.data.datasets[0].data = sliced.map(r=>r.pieces);
   chart.data.datasets[1].data = sliced.map(r=>r.skus);
   chart.data.datasets[2].data = sliced.map(r=>r.dollars);
-  chart.data.datasets[0].hidden = metric!=='all'&&metric!=='pieces';
-  chart.data.datasets[1].hidden = metric!=='all'&&metric!=='skus';
-  chart.data.datasets[2].hidden = metric!=='all'&&metric!=='dollars';
+  chart.data.datasets[0].hidden = metric!=='all' && metric!=='pieces';
+  chart.data.datasets[1].hidden = metric!=='all' && metric!=='skus';
+  chart.data.datasets[2].hidden = metric!=='all' && metric!=='dollars';
   chart.update();
 }
 
@@ -140,12 +166,12 @@ function setupAvgSorting() {
       const key = th.dataset.key;
       const asc = !th.classList.contains('asc');
       avgRows.sort((a,b)=>{
-        if (a[key]<b[key]) return asc? -1:1;
-        if (a[key]>b[key]) return asc? 1:-1;
+        if (a[key] < b[key]) return asc ? -1 : 1;
+        if (a[key] > b[key]) return asc ? 1 : -1;
         return 0;
       });
       document.querySelectorAll('#avgTable th').forEach(x=>x.classList.remove('asc','desc'));
-      th.classList.add(asc?'asc':'desc');
+      th.classList.add(asc ? 'asc' : 'desc');
       renderAvgTable(avgRows);
     });
   });
@@ -158,18 +184,18 @@ function updateView(raw) {
   const acctTerm  = document.getElementById('account-search').value.toLowerCase();
   const tf        = document.getElementById('timeframe-select').value;
   let filtered = raw.filter(i=>{
-    const storeMatch = !storeTerm||i.StoreName.toLowerCase().includes(storeTerm);
+    const storeMatch = !storeTerm || i.StoreName.toLowerCase().includes(storeTerm);
     const name = `${i.FirstName} ${i.LastName}`.toLowerCase();
-    const empMatch = !empTerm||name.includes(empTerm);
-    const acctMatch = !acctTerm||(i.AccountName||'').toLowerCase().includes(acctTerm);
-    return storeMatch&&empMatch&&acctMatch;
+    const empMatch = !empTerm || name.includes(empTerm);
+    const acctMatch = !acctTerm || (i.AccountName||'').toLowerCase().includes(acctTerm);
+    return storeMatch && empMatch && acctMatch;
   });
-  if(tf!=='all') {
-    const cutoff=new Date();
-    if(tf==='week') cutoff.setDate(cutoff.getDate()-7);
-    if(tf==='month')cutoff.setMonth(cutoff.getMonth()-1);
-    if(tf==='year') cutoff.setFullYear(cutoff.getFullYear()-1);
-    filtered=filtered.filter(i=>new Date(i.DateOfInv)>=cutoff);
+  if (tf !== 'all') {
+    const cutoff = new Date();
+    if (tf === 'week')  cutoff.setDate(cutoff.getDate() - 7);
+    if (tf === 'month') cutoff.setMonth(cutoff.getMonth() - 1);
+    if (tf === 'year')  cutoff.setFullYear(cutoff.getFullYear() - 1);
+    filtered = filtered.filter(i => new Date(i.DateOfInv) >= cutoff);
   }
   renderTable(filtered);
   avgRows = computeAverages(filtered);
@@ -177,22 +203,29 @@ function updateView(raw) {
   renderAvgTable(avgRows);
 }
 
-document.addEventListener('DOMContentLoaded', async ()=>{
+document.addEventListener('DOMContentLoaded', async () => {
   rawData = await loadData();
   initStoreDatalist(rawData);
+  initEmployeeDatalist(rawData);
+  initAccountDatalist(rawData);
+
   chart = initChart();
+
   ['store-search','employee-search','account-search','metric-select','top-n','timeframe-select']
-    .forEach(id=>{
-      const el=document.getElementById(id);
-      el.addEventListener('input',()=>updateView(rawData));
-      el.addEventListener('change',()=>updateView(rawData));
+    .forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('input',  () => updateView(rawData));
+      el.addEventListener('change', () => updateView(rawData));
     });
-  document.getElementById('toggle-avg-btn').addEventListener('click',()=>{
-    const sec=document.getElementById('avg-section');
-    const show=sec.style.display==='none';
-    sec.style.display= show?'block':'none';
-    document.getElementById('toggle-avg-btn').textContent = show?'Hide All Averages':'Show All Averages';
+
+  document.getElementById('toggle-avg-btn').addEventListener('click', () => {
+    const sec = document.getElementById('avg-section');
+    const show = sec.style.display === 'none';
+    sec.style.display = show ? 'block' : 'none';
+    document.getElementById('toggle-avg-btn').textContent =
+      show ? 'Hide All Averages' : 'Show All Averages';
   });
+
   setupAvgSorting();
   updateView(rawData);
 });
