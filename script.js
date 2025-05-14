@@ -28,6 +28,10 @@ async function loadData() {
 
 // 2. Datalists
 function initStoreDatalist(data) {
+    ['employee-search','account-search','store-search'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', updateDatalists);
+});
   const list = document.getElementById('store-list');
   list.innerHTML = '';
   Array.from(new Set(data.map(i => i.StoreName)))
@@ -39,6 +43,11 @@ function initStoreDatalist(data) {
        });
 }
 function initEmployeeDatalist(data) {
+    ['employee-search','account-search','store-search'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', updateDatalists);
+});
+
   const list = document.getElementById('employee-list');
   list.innerHTML = '';
   Array.from(new Set(data.map(i => `${i.FirstName} ${i.LastName}`)))
@@ -50,6 +59,11 @@ function initEmployeeDatalist(data) {
        });
 }
 function initAccountDatalist(data) {
+    ['employee-search','account-search','store-search'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', updateDatalists);
+});
+
   const list = document.getElementById('account-list');
   list.innerHTML = '';
   Array.from(new Set(data.map(i => i.AccountName || '')))
@@ -537,3 +551,52 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateView(rawData);
 });
 
+/**
+ * Completely replaces a datalist’s options
+ */
+function updateDataList(datalistElement, values) {
+  datalistElement.innerHTML = '';
+  values.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v;
+    datalistElement.appendChild(opt);
+  });
+}
+
+/**
+ * Rebuild all three datalists based on the other two selected values
+ */
+function updateDatalists() {
+  const empVal   = document.getElementById('employee-search').value.trim();
+  const accVal   = document.getElementById('account-search').value.trim();
+  const storeVal = document.getElementById('store-search').value.trim();
+
+  // 1) Employees: filter rawData by Account & Store
+  const empOptions = Array.from(new Set(
+    rawData
+      .filter(i => (!accVal || i.AccountName === accVal) &&
+                   (!storeVal || i.StoreName   === storeVal))
+      .map(i => `${i.FirstName} ${i.LastName}`)
+  )).sort();
+  updateDataList(document.getElementById('employee-list'), empOptions);
+
+  // 2) Accounts: filter rawData by Employee & Store
+  const accOptions = Array.from(new Set(
+    rawData
+      .filter(i => (!empVal   || `${i.FirstName} ${i.LastName}` === empVal) &&
+                   (!storeVal || i.StoreName             === storeVal))
+      .map(i => i.AccountName || '')
+  ))
+  .filter(a => a)   // drop any empty strings
+  .sort();
+  updateDataList(document.getElementById('account-list'), accOptions);
+
+  // 3) Stores: filter rawData by Employee & Account
+  const storeOptions = Array.from(new Set(
+    rawData
+      .filter(i => (!empVal || `${i.FirstName} ${i.LastName}` === empVal) &&
+                   (!accVal || i.AccountName           === accVal))
+      .map(i => i.StoreName)
+  )).sort();
+  updateDataList(document.getElementById('store-list'), storeOptions);
+}
