@@ -244,6 +244,7 @@ function updateEmployeeTrendChart(raw) {
       const cutoff = new Date();
       if(tf==='week')  cutoff.setDate(cutoff.getDate()-7);
       if(tf==='month') cutoff.setMonth(cutoff.getMonth()-1);
+      if (tf === '6month') cutoff.setMonth(cutoff.getMonth() - 6);
       if(tf==='year')  cutoff.setFullYear(cutoff.getFullYear()-1);
       if (new Date(i.DateOfInv) < cutoff) return false;
     }
