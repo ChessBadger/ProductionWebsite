@@ -17,7 +17,7 @@
     <section class="controls">
       <label>
         Store:
-        <input list="store-list" id="store-search" placeholder="Type to search…" autocomplete="off"/>
+        <input list="store-list" id="store-search" placeholder="Type to search…" autocomplete="off" />
         <datalist id="store-list"></datalist>
       </label>
       <label>
@@ -27,7 +27,7 @@
       </label>
       <label>
         Account:
-        <input list="account-list" id="account-search" placeholder="Type to search…" autocomplete="off"/>
+        <input list="account-list" id="account-search" placeholder="Type to search…" autocomplete="off" />
         <datalist id="account-list"></datalist>
       </label>
       <label>
@@ -64,6 +64,11 @@
       <canvas id="metricsChart"></canvas>
     </section>
 
+    <section class="chart-container" id="employee-trend-section" style="display:none;">
+      <canvas id="employeeTrendChart"></canvas>
+    </section>
+
+    
     <!-- All‐employees averages table (hidden by default) -->
     <section class="table-container" id="avg-section" style="display:none;">
       <h2>All Employee Averages</h2>
@@ -74,6 +79,10 @@
             <th class="sortable" data-key="pieces">Pieces/hr</th>
             <th class="sortable" data-key="dollars">$/hr</th>
             <th class="sortable" data-key="skus">SKU/hr</th>
+            <th class="sortable" data-key="avg_delta">Avg Delta</th>
+            <th class="sortable" data-key="gap5">Gap5 Avg</th>
+            <th class="sortable" data-key="gap10">Gap10 Avg</th>
+            <th class="sortable" data-key="gap15">Gap15 Avg</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -92,13 +101,19 @@
             <th>Pieces/hr</th>
             <th>$/hr</th>
             <th>SKU/hr</th>
+            <th>AVG_DELTA</th>
+            <th>GAP5_COUNT</th>
+            <th>GAP10_COUNT</th>
+            <th>GAP15_COUNT</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
     </section>
   </main>
-
   <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/luxon@3"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1"></script>
 </body>
 </html>
