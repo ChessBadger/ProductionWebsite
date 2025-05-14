@@ -336,7 +336,7 @@ function renderTable(data) {
 
 // 14. Main update: filter, sort, render
 function updateView(raw) {
-  currentPage = 1;
+//   currentPage = 1;
   const storeTerm = document.getElementById('store-search').value.toLowerCase();
   const empTerm   = document.getElementById('employee-search').value.toLowerCase();
   const acctTerm  = document.getElementById('account-search').value.toLowerCase();
@@ -450,9 +450,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     'timeframe-select'
   ].forEach(id => {
     const el = document.getElementById(id);
-    el.addEventListener('input',  () => debouncedUpdate(rawData));
-    el.addEventListener('change', () => debouncedUpdate(rawData));
+      el.addEventListener('input', () => {
+    currentPage = 1;
+    debouncedUpdate(rawData);
   });
+
+  el.addEventListener('change', () => {
+    currentPage = 1;
+    debouncedUpdate(rawData);
+  });
+});
 
   // Toggle averages table
   document.getElementById('toggle-avg-btn')
