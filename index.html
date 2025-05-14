@@ -91,24 +91,26 @@
 
     <!-- Raw filtered records table -->
     <section class="table-container">
-      <table id="metricsTable">
-        <thead>
-          <tr>
-            <th>Employee</th>
-            <th>Account</th>
-            <th>Store</th>
-            <th>Date</th>
-            <th>Pieces/hr</th>
-            <th>$/hr</th>
-            <th>SKU/hr</th>
-            <th>AVG_DELTA</th>
-            <th>GAP5_COUNT</th>
-            <th>GAP10_COUNT</th>
-            <th>GAP15_COUNT</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+     <!-- metricsTable -->
+<table id="metricsTable">
+  <thead>
+    <tr>
+      <th class="sortable" data-key="employee">Employee</th>
+      <th class="sortable" data-key="account">Account</th>
+      <th class="sortable" data-key="store">Store</th>
+      <th class="sortable" data-key="date">Date</th>
+      <th class="sortable" data-key="pieces">Pieces/hr</th>
+      <th class="sortable" data-key="dollars">$/hr</th>
+      <th class="sortable" data-key="skus">SKU/hr</th>
+      <th class="sortable" data-key="avg_delta">Avg Δ</th>
+      <th class="sortable" data-key="gap5_count">Gap5</th>
+      <th class="sortable" data-key="gap10_count">Gap10</th>
+      <th class="sortable" data-key="gap15_count">Gap15</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
     </section>
   </main>
   <script src="script.js"></script>
