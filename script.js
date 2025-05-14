@@ -99,18 +99,18 @@ function renderTable(data) {
   data.forEach(item => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${item.FirstName} ${item.LastName}</td>
-      <td>${item.AccountName||''}</td>
-      <td>${item.StoreName}</td>
-      <td>${new Date(item.DateOfInv).toLocaleDateString()}</td>
-      <td>${(item.PiecesPerHr||0).toFixed(2)}</td>
-      <td>${(item.DollarPerHr||0).toFixed(2)}</td>
-      <td>${(item.SkusPerHr||0).toFixed(2)}</td>
-      <td>${(item.AVG_DELTA||0).toFixed(2)}</td>
-      <td>${item.GAP5_COUNT||0}</td>
-      <td>${item.GAP10_COUNT||0}</td>
-      <td>${item.GAP15_COUNT||0}</td>
-    `;
+  <td data-label="Employee">${item.FirstName} ${item.LastName}</td>
+  <td data-label="Account">${item.AccountName||''}</td>
+  <td data-label="Store">${item.StoreName}</td>
+  <td data-label="Date">${new Date(item.DateOfInv).toLocaleDateString()}</td>
+  <td data-label="Pieces/hr">${(item.PiecesPerHr||0).toFixed(2)}</td>
+  <td data-label="$/hr">${(item.DollarPerHr||0).toFixed(2)}</td>
+  <td data-label="SKU/hr">${(item.SkusPerHr||0).toFixed(2)}</td>
+  <td data-label="Avg Δ">${(item.AVG_DELTA||0).toFixed(2)}</td>
+  <td data-label="Gap5">${item.GAP5_COUNT||0}</td>
+  <td data-label="Gap10">${item.GAP10_COUNT||0}</td>
+  <td data-label="Gap15">${item.GAP15_COUNT||0}</td>
+`;
     tbody.appendChild(tr);
   });
 }
