@@ -251,6 +251,7 @@ function updateEmployeeTrendChart(raw) {
   // Hide if no employee selected
   if (!term) {
     section.style.display = 'none';
+    document.querySelector('#metricsChart').parentElement.style.display = 'block';
     return;
   }
 
@@ -282,6 +283,7 @@ function updateEmployeeTrendChart(raw) {
   // Hide if no data after filtering
   if (filtered.length === 0) {
     section.style.display = 'none';
+    document.querySelector('#metricsChart').parentElement.style.display = 'block';
     return;
   }
 
@@ -303,6 +305,7 @@ function updateEmployeeTrendChart(raw) {
 
   // Update chart data
   section.style.display = 'block';
+  document.querySelector('#metricsChart').parentElement.style.display = 'none';
   employeeTrendChart.data.labels            = dates;
   employeeTrendChart.data.datasets[0].data  = piecesData;
   employeeTrendChart.data.datasets[1].data  = skuData;
