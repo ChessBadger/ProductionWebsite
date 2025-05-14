@@ -20,6 +20,25 @@ main {
   padding: 0 1rem;
 }
 
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.pagination button {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #ccd0d5;
+  background: #fff;
+  border-radius: 4px;
+}
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+
 .controls {
   display: flex;
   flex-wrap: wrap;
@@ -177,26 +196,39 @@ th.sortable.desc::after {
   .controls label > span { display: none; }
 }
 
-/* Card‐style list for metricsTable on small screens */
+/* ================================ */
+/* MOBILE CARDS (≤600px) – metrics & avg tables */
+/* ================================ */
+
 @media (max-width: 600px) {
-  /* make the table a block of cards */
+  /* 1) Collapse both tables into card‑lists */
   #metricsTable.responsive,
+  #avgTable.responsive,
   #metricsTable.responsive thead,
+  #avgTable.responsive thead,
   #metricsTable.responsive tbody,
+  #avgTable.responsive tbody,
   #metricsTable.responsive th,
+  #avgTable.responsive th,
   #metricsTable.responsive td,
-  #metricsTable.responsive tr {
+  #avgTable.responsive td,
+  #metricsTable.responsive tr,
+  #avgTable.responsive tr {
     display: block;
+    width: 100%;
   }
 
-  /* hide the header row */
-  #metricsTable.responsive thead tr {
+  /* 2) Hide their headers completely */
+  #metricsTable.responsive thead,
+  #avgTable.responsive thead {
     height: 0;
+    overflow: hidden;
     visibility: hidden;
   }
 
-  /* style each row as a card */
-  #metricsTable.responsive tr {
+  /* 3) Style each row as its own card */
+  #metricsTable.responsive tr,
+  #avgTable.responsive tr {
     margin-bottom: 1rem;
     background: #fff;
     border: 1px solid #e1e4eb;
@@ -204,22 +236,62 @@ th.sortable.desc::after {
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   }
 
-  /* stack label and value */
-  #metricsTable.responsive td {
+  /* 4) Stack each cell with label above value */
+  #metricsTable.responsive td,
+  #avgTable.responsive td {
     padding: 0.75rem 1rem;
     border: none;
     border-bottom: 1px solid #edf0f5;
   }
-  #metricsTable.responsive tr td:last-child {
+  #metricsTable.responsive tr td:last-child,
+  #avgTable.responsive tr td:last-child {
     border-bottom: none;
   }
-
-  /* label above the value */
-  #metricsTable.responsive td::before {
+  #metricsTable.responsive td::before,
+  #avgTable.responsive td::before {
     content: attr(data-label);
     display: block;
+    font-size: 0.85rem;
     font-weight: 600;
     margin-bottom: 0.25rem;
     color: #555;
   }
+
+  /* 5) Ensure no horizontal scroll, full‑width cards */
+  .table-container {
+    overflow-x: hidden;
+  }
+  .table-container table {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  /* 6) Trim page padding for true edge‑to‑edge cards */
+  main {
+    padding: 0.5rem;
+  }
 }
+
+
+/* 1) Global box‐sizing so padding doesn’t push containers past 100% */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* 2) Kill any page‐level horizontal scroll */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* 3) Ensure table “cards” fill their container without extra padding overflow */
+@media (max-width: 600px) {
+  .table-container {
+    overflow-x: hidden;
+    /* if you’d like a bit of breathing room, you can reduce padding: */
+    padding: 0.5rem;
+  }
+}
+
+
