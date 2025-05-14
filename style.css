@@ -295,3 +295,17 @@ html, body {
 }
 
 
+.chart-container {
+  width: 100%;
+  max-width: none;      /* let it fill the parent */
+  margin: 0 auto 2rem;
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.chart-container canvas {
+ width: 100% !important;
+height: 100% !important;
+}
