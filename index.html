@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,27 +13,34 @@
   </header>
 
   <main>
+    <!-- Filters & controls -->
     <section class="controls">
-      <!-- store search with suggestions -->
       <label>
         Store:
         <input list="store-list" id="store-search" placeholder="Type to search…" />
         <datalist id="store-list"></datalist>
       </label>
-
-      <!-- employee search -->
       <label>
         Employee:
         <input type="text" id="employee-search" placeholder="Type to search…" />
       </label>
-
-      <!-- account search -->
       <label>
         Account:
         <input type="text" id="account-search" placeholder="Type to search…" />
       </label>
-
-      <!-- timeframe -->
+      <label>
+        Metric:
+        <select id="metric-select">
+          <option value="all">All</option>
+          <option value="pieces">Pieces/hr</option>
+          <option value="skus">SKU/hr</option>
+          <option value="dollars">$/hr</option>
+        </select>
+      </label>
+      <label>
+        Top N:
+        <input type="number" id="top-n" min="1" value="10" />
+      </label>
       <label>
         Timeframe:
         <select id="timeframe-select">
@@ -46,10 +52,33 @@
       </label>
     </section>
 
+     <!-- Toggle button for full averages -->
+    <section class="controls">
+      <button id="toggle-avg-btn">Show All Averages</button>
+    </section>
+
+    <!-- Chart -->
     <section class="chart-container">
       <canvas id="metricsChart"></canvas>
     </section>
+    
+        <!-- All‐employees averages table (hidden by default) -->
+ <section class="table-container" id="avg-section" style="display:none;">
+  <h2>All Employee Averages</h2>
+  <table id="avgTable">
+    <thead>
+      <tr>
+        <th class="sortable" data-key="name">Employee</th>
+        <th class="sortable" data-key="pieces">Pieces/hr</th>
+        <th class="sortable" data-key="dollars">$/hr</th>
+        <th class="sortable" data-key="skus">SKU/hr</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
 
+    <!-- Raw filtered records table -->
     <section class="table-container">
       <table id="metricsTable">
         <thead>
@@ -67,7 +96,6 @@
       </table>
     </section>
   </main>
-
   <script src="script.js"></script>
 </body>
 </html>
