@@ -264,3 +264,7 @@ html, body {
  width: 100% !important;
 height: 100% !important;
 }
+
+ #employee-trend-section {
+    height: 700px;
+  }
