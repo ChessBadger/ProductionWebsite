@@ -196,81 +196,33 @@ th.sortable.desc::after {
   .controls label > span { display: none; }
 }
 
-/* ================================ */
-/* MOBILE CARDS (≤600px) – metrics & avg tables */
-/* ================================ */
-
+/* —————————————— */
+/* Responsive tables on phones */
+/* —————————————— */
 @media (max-width: 600px) {
-  /* 1) Collapse both tables into card‑lists */
-  #metricsTable.responsive,
-  #avgTable.responsive,
-  #metricsTable.responsive thead,
-  #avgTable.responsive thead,
-  #metricsTable.responsive tbody,
-  #avgTable.responsive tbody,
-  #metricsTable.responsive th,
-  #avgTable.responsive th,
-  #metricsTable.responsive td,
-  #avgTable.responsive td,
-  #metricsTable.responsive tr,
-  #avgTable.responsive tr {
-    display: block;
-    width: 100%;
-  }
 
-  /* 2) Hide their headers completely */
-  #metricsTable.responsive thead,
-  #avgTable.responsive thead {
-    height: 0;
-    overflow: hidden;
-    visibility: hidden;
-  }
-
-  /* 3) Style each row as its own card */
-  #metricsTable.responsive tr,
-  #avgTable.responsive tr {
-    margin-bottom: 1rem;
-    background: #fff;
-    border: 1px solid #e1e4eb;
-    border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  }
-
-  /* 4) Stack each cell with label above value */
-  #metricsTable.responsive td,
-  #avgTable.responsive td {
-    padding: 0.75rem 1rem;
-    border: none;
-    border-bottom: 1px solid #edf0f5;
-  }
-  #metricsTable.responsive tr td:last-child,
-  #avgTable.responsive tr td:last-child {
-    border-bottom: none;
-  }
-  #metricsTable.responsive td::before,
-  #avgTable.responsive td::before {
-    content: attr(data-label);
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-    color: #555;
-  }
-
-  /* 5) Ensure no horizontal scroll, full‑width cards */
-  .table-container {
-    overflow-x: hidden;
-  }
-  .table-container table {
-    min-width: 0 !important;
-    width: 100% !important;
-  }
-
-  /* 6) Trim page padding for true edge‑to‑edge cards */
-  main {
-    padding: 0.5rem;
-  }
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
 }
+
+/* make first column sticky */
+.responsive th:first-child,
+.responsive td:first-child {
+  position: sticky;
+  left: 0;
+  /* match your bg color so it covers cells behind it */
+  background-color: #fff;
+  /* elevate above the other cells */
+  z-index: 2;
+}
+
+/* if you have a header row and want it on top of the frozen cell */
+.responsive thead th:first-child {
+  z-index: 3;
+}
+}
+
 
 
 /* 1) Global box‐sizing so padding doesn’t push containers past 100% */
@@ -288,10 +240,10 @@ html, body {
 /* 3) Ensure table “cards” fill their container without extra padding overflow */
 @media (max-width: 600px) {
   .table-container {
-    overflow-x: hidden;
     /* if you’d like a bit of breathing room, you can reduce padding: */
     padding: 0.5rem;
   }
+
 }
 
 
