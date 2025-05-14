@@ -593,17 +593,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 // 1) Helper to wire up the auto‑select behavior
-function setupAutoSelect() {
-  // match any <input> that supports .select()
+function setupAutoClear() {
   document.querySelectorAll('input').forEach(input => {
     if (typeof input.select === 'function') {
-      // select all on focus (e.g. tabbing in)
-      input.addEventListener('focus', () => input.value = '');
-      // prevent the mouseup from cancelling the selection when clicked
+      input.addEventListener('focus', () => {
+        input.value = '';
+        currentPage = 1;
+        debouncedUpdate(rawData);
+      });
       input.addEventListener('mouseup', e => e.preventDefault());
     }
   });
 }
+
 
 // 2) Inside your existing DOMContentLoaded handler, after you do all your
 //    init*() calls but _before_ your initial updateView(rawData)
@@ -616,7 +618,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // … any other setup you already have …
 
   // <— add this line:
-  setupAutoSelect();
+  setupAutoClear();
 
   // finally, render your dashboard
   updateView(rawData);
