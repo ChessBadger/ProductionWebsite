@@ -467,6 +467,9 @@ function updateView(raw) {
   const tf        = document.getElementById('timeframe-select').value;
   const now       = new Date();
 
+  const exactDate = document.getElementById('date-filter').value;
+
+
   let filtered = raw.filter(i => {
     if (storeTerm && !i.StoreName.toLowerCase().includes(storeTerm)) return false;
     const name = `${i.FirstName} ${i.LastName}`.toLowerCase();
@@ -476,14 +479,18 @@ function updateView(raw) {
     const acctGroup = ACCOUNT_GROUPS[acctTerm] || [acctTerm];
     if (acctTerm && !acctGroup.includes(acctName)) return false;
 
-    if (tf!=='all') {
-      const cutoff = new Date(now);
-      if (tf==='week')  cutoff.setDate(cutoff.getDate()-7);
-      if (tf==='month') cutoff.setMonth(cutoff.getMonth()-1);
-      if (tf === '6month') cutoff.setMonth(cutoff.getMonth() - 6);
-      if (tf==='year')  cutoff.setFullYear(cutoff.getFullYear()-1);
-      if (new Date(i.DateOfInv) < cutoff) return false;
-    }
+    if (exactDate) {
+  const invDate = i.DateOfInv.slice(0, 10); // 'YYYY-MM-DD'
+    if (invDate !== exactDate) return false;
+  } else if (tf !== 'all') {
+    const cutoff = new Date(now);
+    if (tf === 'week')   cutoff.setDate(cutoff.getDate() - 7);
+    if (tf === 'month')  cutoff.setMonth(cutoff.getMonth() - 1);
+    if (tf === '6month') cutoff.setMonth(cutoff.getMonth() - 6);
+    if (tf === 'year')   cutoff.setFullYear(cutoff.getFullYear() - 1);
+    if (new Date(i.DateOfInv) < cutoff) return false;
+  }
+
     return true;
   });
 
@@ -564,6 +571,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   initEmployeeDatalist(rawData);
   initAccountDatalist(rawData);
 
+  document.getElementById('date-filter').addEventListener('change', () => {
+  if (document.getElementById('date-filter').value) {
+    document.getElementById('timeframe-select').value = 'all';
+  }
+});
+
+
   initChart();
   initEmployeeTrendChart();
   setupAvgSorting();
@@ -576,7 +590,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     'account-search',
     'metric-select',
     'top-n',
-    'timeframe-select'
+    'timeframe-select',
+    'date-filter'
   ].forEach(id => {
     const el = document.getElementById(id);
       el.addEventListener('input', () => {
@@ -742,14 +757,18 @@ function scrollToRowByDate(dateString) {
     if (empTerm && !name.includes(empTerm)) return false;
     const acctName = (i.AccountName || '').toLowerCase();
     if (acctTerm && !acctGroup.includes(acctName)) return false;
-    if (tf !== 'all') {
-      const cutoff = new Date(now);
-      if (tf === 'week') cutoff.setDate(cutoff.getDate() - 7);
-      if (tf === 'month') cutoff.setMonth(cutoff.getMonth() - 1);
-      if (tf === '6month') cutoff.setMonth(cutoff.getMonth() - 6);
-      if (tf === 'year') cutoff.setFullYear(cutoff.getFullYear() - 1);
-      if (new Date(i.DateOfInv) < cutoff) return false;
-    }
+    if (!exactDate && tf !== 'all') {
+    const cutoff = new Date(now);
+    if (tf === 'week')  cutoff.setDate(cutoff.getDate() - 7);
+    if (tf === 'month') cutoff.setMonth(cutoff.getMonth() - 1);
+    if (tf === '6month')cutoff.setMonth(cutoff.getMonth() - 6);
+    if (tf === 'year')  cutoff.setFullYear(cutoff.getFullYear() - 1);
+    if (new Date(i.DateOfInv) < cutoff) return false;
+    if (exactDate) {
+    const invDate = i.DateOfInv.slice(0, 10); // Ensure it's 'YYYY-MM-DD'
+    if (invDate !== exactDate) return false;
+}
+  }
     return true;
   });
 
