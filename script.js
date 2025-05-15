@@ -599,18 +599,23 @@ function setupAutoClear() {
         const wasNotEmpty = input.value !== '';
         input.value = '';
         if (wasNotEmpty) {
+          updateDatalists();         // ✅ force-refresh suggestions
           currentPage = 1;
           debouncedUpdate(rawData);
         }
       });
+
       input.addEventListener('input', () => {
+        updateDatalists();           // ✅ keep suggestions in sync
         currentPage = 1;
         debouncedUpdate(rawData);
       });
+
       input.addEventListener('mouseup', e => e.preventDefault());
     }
   });
 }
+
 
 
 // 2) Inside your existing DOMContentLoaded handler, after you do all your
