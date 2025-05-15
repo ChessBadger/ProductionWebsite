@@ -1,137 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>Employee Production Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-  <header>
-    <h1>Production Dashboard</h1>
-  </header>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <title>Employee Production Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Production Dashboard</h1>
+    </header>
 
-  <main>
-    <!-- Filters & controls -->
-    <section class="controls">
-      <label>
-        Employee:
-        <input list="employee-list" id="employee-search" placeholder="Type to search…" autocomplete="off" />
-        <datalist id="employee-list"></datalist>
-      </label>
-      <label>
-        Account:
-        <input list="account-list" id="account-search" placeholder="Type to search…" autocomplete="off" />
-        <datalist id="account-list"></datalist>
-      </label>
-      <label>
-        Store:
-        <input list="store-list" id="store-search" placeholder="Type to search…" autocomplete="off" />
-        <datalist id="store-list"></datalist>
-      </label>
-      <label>
-        Metric:
-        <select id="metric-select">
-          <option value="all">All</option>
-          <option value="pieces">Pieces/hr</option>
-          <option value="skus">SKU/hr</option>
-          <option value="dollars">$/hr</option>
-        </select>
-      </label>
-      <label>
-        Top N:
-        <input type="number" id="top-n" min="1" value="10" />
-      </label>
-      <label>
-  Timeframe
-  <select id="timeframe-select">
-    <option value="week">Last Week</option>
-    <option value="month">Last Month</option>
-+   <option value="6month">Last 6 Months</option>
-    <option value="year" selected>Last 12 Months</option>
-    <option value="all">All Time</option>
-  </select>
-</label>
-
-<label>
-  Specific Date:
-  <input type="date" id="date-filter" />
-</label>
-
-    </section>
-
-    <!-- Toggle button for full averages -->
-    <section class="controls">
-      <button id="toggle-avg-btn">Hide All Averages</button>
-    </section>
-
-    <!-- Chart -->
-    <section class="chart-container">
-      <canvas id="metricsChart"></canvas>
-    </section>
-
-    <section class="chart-container" id="employee-trend-section" style="display:none;">
-      <div class="toggle-wrapper">
-        <span>Per-Store</span>
-        <label class="switch">
-          <input type="checkbox" id="trend-toggle" checked>
-          <span class="slider round"></span>
+    <main>
+      <!-- Filters & controls -->
+      <section class="controls">
+        <label>
+          Employee:
+          <input
+            list="employee-list"
+            id="employee-search"
+            placeholder="Type to search…"
+            autocomplete="off"
+          />
+          <datalist id="employee-list"></datalist>
         </label>
-        <span>Monthly Avg</span>
-      </div>
-      <canvas id="employeeTrendChart"></canvas>
-    </section>
+        <label>
+          Account:
+          <input
+            list="account-list"
+            id="account-search"
+            placeholder="Type to search…"
+            autocomplete="off"
+          />
+          <datalist id="account-list"></datalist>
+        </label>
+        <label>
+          Store:
+          <input
+            list="store-list"
+            id="store-search"
+            placeholder="Type to search…"
+            autocomplete="off"
+          />
+          <datalist id="store-list"></datalist>
+        </label>
+        <label>
+          Metric:
+          <select id="metric-select">
+            <option value="all">All</option>
+            <option value="pieces">Pieces/hr</option>
+            <option value="skus">SKU/hr</option>
+            <option value="dollars">$/hr</option>
+          </select>
+        </label>
+        <label>
+          Top N:
+          <input type="number" id="top-n" min="1" value="10" />
+        </label>
+        <label>
+          Timeframe
+          <select id="timeframe-select">
+            <option value="week">Last Week</option>
+            <option value="month">Last Month</option>
+            +
+            <option value="6month">Last 6 Months</option>
+            <option value="year" selected>Last 12 Months</option>
+            <option value="all">All Time</option>
+          </select>
+        </label>
 
-    
-    <!-- All‐employees averages table (hidden by default) -->
-    <section class="table-container" id="avg-section">
-      <h2>All Employee Averages</h2>
-      <table id="avgTable" class="responsive">
-        <thead>
-          <tr>
-            <th class="sortable" data-key="name">Employee</th>
-            <th class="sortable" data-key="pieces">Pieces/hr</th>
-            <th class="sortable" data-key="dollars">$/hr</th>
-            <th class="sortable" data-key="skus">SKU/hr</th>
-            <th class="sortable" data-key="avg_delta">Avg Delta</th>
-            <th class="sortable" data-key="gap5">Gap5 Avg</th>
-            <th class="sortable" data-key="gap10">Gap10 Avg</th>
-            <th class="sortable" data-key="gap15">Gap15 Avg</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
+        <label>
+          Specific Date:
+          <input type="date" id="date-filter" />
+        </label>
+      </section>
 
-    <!-- Raw filtered records table -->
-    <section class="table-container">
-      <h2>All Store Details</h2>
-          <!-- metricsTable -->
-      <table id="metricsTable" class="responsive">
-        <div id="pagination" class="pagination"></div>
-        <thead>
-          <tr>
-            <th class="sortable" data-key="employee">Employee</th>
-            <th class="sortable" data-key="account">Account</th>
-            <th class="sortable" data-key="store">Store</th>
-            <th class="sortable" data-key="date">Inv Date</th>
-            <th class="sortable" data-key="pieces">Pieces/hr</th>
-            <th class="sortable" data-key="dollars">$Dollars/hr</th>
-            <th class="sortable" data-key="skus">SKU/hr</th>
-            <th class="sortable" data-key="avg_delta">Avg Delta</th>
-            <th class="sortable" data-key="gap5_count">Gap5</th>
-            <th class="sortable" data-key="gap10_count">Gap10</th>
-            <th class="sortable" data-key="gap15_count">Gap15</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
-  </main>
-  <script src="script.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/luxon@3"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1"></script>
-</body>
+      <!-- Toggle button for full averages -->
+      <section class="controls">
+        <button id="toggle-avg-btn">Hide All Averages</button>
+      </section>
+
+      <!-- Chart -->
+      <section class="chart-container">
+        <canvas id="metricsChart"></canvas>
+      </section>
+
+      <section
+        class="chart-container"
+        id="employee-trend-section"
+        style="display: none"
+      >
+        <div class="toggle-wrapper">
+          <span>Per-Store</span>
+          <label class="switch">
+            <input type="checkbox" id="trend-toggle" checked />
+            <span class="slider round"></span>
+          </label>
+          <span>Monthly Avg</span>
+        </div>
+        <canvas id="employeeTrendChart"></canvas>
+      </section>
+
+      <!-- All‐employees averages table (hidden by default) -->
+      <section class="table-container" id="avg-section">
+        <h2>All Employee Averages</h2>
+        <table id="avgTable" class="responsive">
+          <thead>
+            <tr>
+              <th class="sortable" data-key="name">Employee</th>
+              <th class="sortable" data-key="pieces">Pieces/hr</th>
+              <th class="sortable" data-key="dollars">$/hr</th>
+              <th class="sortable" data-key="skus">SKU/hr</th>
+              <th class="sortable" data-key="avg_delta">Avg Delta</th>
+              <th class="sortable" data-key="gap5">Gap5 Avg</th>
+              <th class="sortable" data-key="gap10">Gap10 Avg</th>
+              <th class="sortable" data-key="gap15">Gap15 Avg</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <!-- Raw filtered records table -->
+      <section class="table-container">
+        <h2>All Store Details</h2>
+        <!-- metricsTable -->
+        <table id="metricsTable" class="responsive">
+          <div id="pagination" class="pagination"></div>
+          <thead>
+            <tr>
+              <th class="sortable" data-key="employee">Employee</th>
+              <th class="sortable" data-key="account">Account</th>
+              <th class="sortable" data-key="store">Store</th>
+              <th class="sortable" data-key="date">Inv Date</th>
+              <th class="sortable" data-key="pieces">Pieces/hr</th>
+              <th class="sortable" data-key="dollars">$Dollars/hr</th>
+              <th class="sortable" data-key="skus">SKU/hr</th>
+              <th class="sortable" data-key="avg_delta">Avg Delta</th>
+              <th class="sortable" data-key="gap5_count">Gap5</th>
+              <th class="sortable" data-key="gap10_count">Gap10</th>
+              <th class="sortable" data-key="gap15_count">Gap15</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </main>
+    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1"></script>
+  </body>
 </html>

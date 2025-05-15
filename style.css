@@ -1,7 +1,7 @@
 /* style.css */
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   margin: 0;
   background: #f5f7fa;
   color: #2e3a59;
@@ -11,7 +11,7 @@ header {
   text-align: center;
   padding: 1rem 0;
   background: #fff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 main {
@@ -37,7 +37,6 @@ main {
   opacity: 0.5;
   cursor: default;
 }
-
 
 .controls {
   display: flex;
@@ -71,9 +70,16 @@ main {
   transition: background 0.2s;
 }
 
-
 /* Chart */
-.chart-container { width: 100%; max-width: 800px; margin: 0 auto 2rem; background: #fff; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,.1); }
+.chart-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto 2rem;
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
 .table-container h2 {
   margin-top: 0;
@@ -108,7 +114,7 @@ th.sortable {
 }
 
 th.sortable::after {
-  content: '';
+  content: "";
   display: inline-block;
   margin-left: 0.5rem;
   border: 4px solid transparent;
@@ -193,45 +199,47 @@ th.sortable.desc::after {
     flex: 1;
   }
   /* if you want to hide static <label> text and rely solely on placeholder, you can: */
-  .controls label > span { display: none; }
+  .controls label > span {
+    display: none;
+  }
 }
 
 /* —————————————— */
 /* Responsive tables on phones */
 /* —————————————— */
 @media (max-width: 600px) {
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+  }
 
-.table-container {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+  /* make first column sticky */
+  .responsive th:first-child,
+  .responsive td:first-child {
+    position: sticky;
+    left: 0;
+    /* match your bg color so it covers cells behind it */
+    background-color: #fff;
+    /* elevate above the other cells */
+    z-index: 2;
+  }
+
+  /* if you have a header row and want it on top of the frozen cell */
+  .responsive thead th:first-child {
+    z-index: 3;
+  }
 }
-
-/* make first column sticky */
-.responsive th:first-child,
-.responsive td:first-child {
-  position: sticky;
-  left: 0;
-  /* match your bg color so it covers cells behind it */
-  background-color: #fff;
-  /* elevate above the other cells */
-  z-index: 2;
-}
-
-/* if you have a header row and want it on top of the frozen cell */
-.responsive thead th:first-child {
-  z-index: 3;
-}
-}
-
-
 
 /* 1) Global box‐sizing so padding doesn’t push containers past 100% */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 /* 2) Kill any page‐level horizontal scroll */
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
@@ -244,35 +252,33 @@ html, body {
     padding: 0.5rem;
   }
 
-    #employee-trend-section {
+  #employee-trend-section {
     height: 300px;
   }
 }
 
-
 .chart-container {
   width: 100%;
-  max-width: none;      /* let it fill the parent */
+  max-width: none; /* let it fill the parent */
   margin: 0 auto 2rem;
   background: #fff;
   padding: 1rem;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .chart-container canvas {
- width: 100% !important;
-height: 100% !important;
+  width: 100% !important;
+  height: 100% !important;
 }
 
- #employee-trend-section {
-    height: 700px;
-  }
+#employee-trend-section {
+  height: 700px;
+}
 
-  .clickable-store {
+.clickable-store {
   cursor: pointer;
 }
-
 
 /* Toggle Switch */
 .toggle-wrapper {
@@ -300,8 +306,10 @@ height: 100% !important;
 .slider {
   position: absolute;
   cursor: pointer;
-  top: 0; left: 0;
-  right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: #ccc;
   transition: 0.4s;
   border-radius: 24px;
@@ -310,8 +318,10 @@ height: 100% !important;
 .slider:before {
   position: absolute;
   content: "";
-  height: 18px; width: 18px;
-  left: 3px; bottom: 3px;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
   background-color: white;
   transition: 0.4s;
   border-radius: 50%;

@@ -5,7 +5,7 @@ let rawData = [];
 let chart = null;
 let employeeTrendChart = null;
 let avgRows = [];
-let tableSortKey = 'date';
+let tableSortKey = "date";
 let tableSortAsc = false;
 let currentPage = 1;
 const rowsPerPage = 50;
@@ -13,7 +13,7 @@ const rowsPerPage = 50;
 // Account alias groups
 const ACCOUNT_GROUPS = {
   "mariano's": ["mariano's", "kroger"],
-  "kroger": ["mariano's", "kroger"],
+  kroger: ["mariano's", "kroger"],
 
   // PIGGLY WIGGLY aliases
   "PIGGLY WIGGLY": [
@@ -29,26 +29,20 @@ const ACCOUNT_GROUPS = {
     "pigs ryan o",
     "pigs stinebrinks",
     "pigs stoneridge",
-    "pigs tietz"
+    "pigs tietz",
   ],
 
-  // ASCENSION 
+  // ASCENSION
   "ascension rx - per k": ["ascension rx - per k", "ascension rx - man hr"],
   "ascension rx - man hr": ["ascension rx - per k", "ascension rx - man hr"],
 
   //SCHIERL
-  "FUEL ON": [
-    "relaince fuel, llc",
-    "reliance fuel, llc",
-    "fuel on",
-    "schierl"
-  ]
-  
+  "FUEL ON": ["relaince fuel, llc", "reliance fuel, llc", "fuel on", "schierl"],
 };
 
 const ACCOUNT_DISPLAY_NAME = {
   "mariano's": "KROGER",
-  "kroger": "KROGER",
+  kroger: "KROGER",
 
   "piggly wiggly - franchise": "PIGGLY WIGGLY",
   "pigs coporate": "PIGGLY WIGGLY",
@@ -64,17 +58,14 @@ const ACCOUNT_DISPLAY_NAME = {
   "pigs red": "PIGGLY WIGGLY",
   "pigs dave s": "PIGGLY WIGGLY",
 
-
-
   "ascension rx - man hr": "ASCENSION RX",
   "ascension rx - per k": "ASCENSION RX",
 
-  "schierl": "FUEL ON",
+  schierl: "FUEL ON",
   "relaince fuel, llc": "FUEL ON",
   "reliance fuel, llc": "FUEL ON",
-  "fuel on": "FUEL ON"
+  "fuel on": "FUEL ON",
 };
-
 
 // Debounce helper
 function debounce(fn, delay = 300) {
@@ -87,169 +78,204 @@ function debounce(fn, delay = 300) {
 
 // 1. Load JSON
 async function loadData() {
-  const res  = await fetch('EmployeeProductionExport.json');
+  const res = await fetch("EmployeeProductionExport.json");
   const json = await res.json();
   return json.EmployeeProductionExportLashaun;
 }
 
 // 2. Datalists
 function initStoreDatalist(data) {
-    ['employee-search','account-search','store-search'].forEach(id => {
-  const el = document.getElementById(id);
-  el.addEventListener('input', updateDatalists);
-});
-  const list = document.getElementById('store-list');
-  list.innerHTML = '';
-  Array.from(new Set(data.map(i => i.StoreName)))
-       .sort()
-       .forEach(s => {
-         const opt = document.createElement('option');
-         opt.value = s;
-         list.appendChild(opt);
-       });
+  ["employee-search", "account-search", "store-search"].forEach((id) => {
+    const el = document.getElementById(id);
+    el.addEventListener("input", updateDatalists);
+  });
+  const list = document.getElementById("store-list");
+  list.innerHTML = "";
+  Array.from(new Set(data.map((i) => i.StoreName)))
+    .sort()
+    .forEach((s) => {
+      const opt = document.createElement("option");
+      opt.value = s;
+      list.appendChild(opt);
+    });
 }
 function initEmployeeDatalist(data) {
-    ['employee-search','account-search','store-search'].forEach(id => {
-  const el = document.getElementById(id);
-  el.addEventListener('input', updateDatalists);
-});
+  ["employee-search", "account-search", "store-search"].forEach((id) => {
+    const el = document.getElementById(id);
+    el.addEventListener("input", updateDatalists);
+  });
 
-  const list = document.getElementById('employee-list');
-  list.innerHTML = '';
-  Array.from(new Set(data.map(i => `${i.FirstName} ${i.LastName}`)))
-       .sort()
-       .forEach(e => {
-         const opt = document.createElement('option');
-         opt.value = e;
-         list.appendChild(opt);
-       });
+  const list = document.getElementById("employee-list");
+  list.innerHTML = "";
+  Array.from(new Set(data.map((i) => `${i.FirstName} ${i.LastName}`)))
+    .sort()
+    .forEach((e) => {
+      const opt = document.createElement("option");
+      opt.value = e;
+      list.appendChild(opt);
+    });
 }
 function initAccountDatalist(data) {
-    ['employee-search','account-search','store-search'].forEach(id => {
-  const el = document.getElementById(id);
-  el.addEventListener('input', updateDatalists);
-});
+  ["employee-search", "account-search", "store-search"].forEach((id) => {
+    const el = document.getElementById(id);
+    el.addEventListener("input", updateDatalists);
+  });
 
-  const list = document.getElementById('account-list');
-  list.innerHTML = '';
-  Array.from(new Set(data.map(i => i.AccountName || '')))
-       .filter(a => a)
-       .sort()
-       .forEach(a => {
-         const opt = document.createElement('option');
-         opt.value = a;
-         list.appendChild(opt);
-       });
+  const list = document.getElementById("account-list");
+  list.innerHTML = "";
+  Array.from(new Set(data.map((i) => i.AccountName || "")))
+    .filter((a) => a)
+    .sort()
+    .forEach((a) => {
+      const opt = document.createElement("option");
+      opt.value = a;
+      list.appendChild(opt);
+    });
 }
 
 // 3. Compute averages
 function computeAverages(data) {
   const groups = {};
-  data.forEach(i => {
+  data.forEach((i) => {
     const name = `${i.FirstName} ${i.LastName}`;
-    if (!groups[name]) groups[name] = { p:0, d:0, s:0, delta:0, g5:0, g10:0, g15:0, c:0 };
-    groups[name].p     += i.PiecesPerHr || 0;
-    groups[name].d     += i.DollarPerHr || 0;
-    groups[name].s     += i.SkusPerHr   || 0;
-    groups[name].delta += i.AVG_DELTA   || 0;
-    groups[name].g5    += i.GAP5_COUNT  || 0;
-    groups[name].g10   += i.GAP10_COUNT || 0;
-    groups[name].g15   += i.GAP15_COUNT || 0;
+    if (!groups[name])
+      groups[name] = {
+        p: 0,
+        d: 0,
+        s: 0,
+        delta: 0,
+        g5: 0,
+        g10: 0,
+        g15: 0,
+        c: 0,
+      };
+    groups[name].p += i.PiecesPerHr || 0;
+    groups[name].d += i.DollarPerHr || 0;
+    groups[name].s += i.SkusPerHr || 0;
+    groups[name].delta += i.AVG_DELTA || 0;
+    groups[name].g5 += i.GAP5_COUNT || 0;
+    groups[name].g10 += i.GAP10_COUNT || 0;
+    groups[name].g15 += i.GAP15_COUNT || 0;
     groups[name].c++;
   });
   return Object.entries(groups).map(([name, g]) => ({
     name,
-    pieces:    g.p     / g.c,
-    dollars:   g.d     / g.c,
-    skus:      g.s     / g.c,
+    pieces: g.p / g.c,
+    dollars: g.d / g.c,
+    skus: g.s / g.c,
     avg_delta: g.delta / g.c,
-    gap5:      g.g5    / g.c,
-    gap10:     g.g10   / g.c,
-    gap15:     g.g15   / g.c
+    gap5: g.g5 / g.c,
+    gap10: g.g10 / g.c,
+    gap15: g.g15 / g.c,
   }));
 }
 
 // 4. Group average row
 function computeGroupAvg(rows) {
-  const sum = rows.reduce((acc, r) => {
-    acc.pieces    += r.pieces;
-    acc.dollars   += r.dollars;
-    acc.skus      += r.skus;
-    acc.avg_delta += r.avg_delta;
-    acc.gap5      += r.gap5;
-    acc.gap10     += r.gap10;
-    acc.gap15     += r.gap15;
-    return acc;
-  }, { pieces:0, dollars:0, skus:0, avg_delta:0, gap5:0, gap10:0, gap15:0 });
+  const sum = rows.reduce(
+    (acc, r) => {
+      acc.pieces += r.pieces;
+      acc.dollars += r.dollars;
+      acc.skus += r.skus;
+      acc.avg_delta += r.avg_delta;
+      acc.gap5 += r.gap5;
+      acc.gap10 += r.gap10;
+      acc.gap15 += r.gap15;
+      return acc;
+    },
+    {
+      pieces: 0,
+      dollars: 0,
+      skus: 0,
+      avg_delta: 0,
+      gap5: 0,
+      gap10: 0,
+      gap15: 0,
+    }
+  );
   const n = rows.length || 1;
   return {
-    name: 'Group Average',
-    pieces:    sum.pieces   / n,
-    dollars:   sum.dollars  / n,
-    skus:      sum.skus     / n,
-    avg_delta: sum.avg_delta/ n,
-    gap5:      sum.gap5     / n,
-    gap10:     sum.gap10    / n,
-    gap15:     sum.gap15    / n
+    name: "Group Average",
+    pieces: sum.pieces / n,
+    dollars: sum.dollars / n,
+    skus: sum.skus / n,
+    avg_delta: sum.avg_delta / n,
+    gap5: sum.gap5 / n,
+    gap10: sum.gap10 / n,
+    gap15: sum.gap15 / n,
   };
 }
 
 // 5. Init main bar chart
 function initChart() {
-  const ctx = document.getElementById('metricsChart').getContext('2d');
+  const ctx = document.getElementById("metricsChart").getContext("2d");
   if (chart) chart.destroy();
   chart = new Chart(ctx, {
-    type: 'bar',
+    type: "bar",
     data: {
       labels: [],
       datasets: [
-        { label:'Pieces/hr', data:[], yAxisID:'yPieces' },
-        { label:'SKU/hr',    data:[], yAxisID:'yPieces' },
-        { label:'$/hr',      data:[], yAxisID:'yDollars' }
-      ]
+        { label: "Pieces/hr", data: [], yAxisID: "yPieces" },
+        { label: "SKU/hr", data: [], yAxisID: "yPieces" },
+        { label: "$/hr", data: [], yAxisID: "yDollars" },
+      ],
     },
     options: {
       responsive: true,
       scales: {
-        yPieces: { type:'linear', position:'left', beginAtZero:true, title:{display:true,text:'Pieces & SKU per hr'} },
-        yDollars:{ type:'linear', position:'right',beginAtZero:true,grid:{drawOnChartArea:false},
-                   title:{display:true,text:'$ per hr'},ticks:{callback:v=>'$'+v} },
-        x: { ticks:{autoSkip:true, maxRotation:45, minRotation:45} }
+        yPieces: {
+          type: "linear",
+          position: "left",
+          beginAtZero: true,
+          title: { display: true, text: "Pieces & SKU per hr" },
+        },
+        yDollars: {
+          type: "linear",
+          position: "right",
+          beginAtZero: true,
+          grid: { drawOnChartArea: false },
+          title: { display: true, text: "$ per hr" },
+          ticks: { callback: (v) => "$" + v },
+        },
+        x: { ticks: { autoSkip: true, maxRotation: 45, minRotation: 45 } },
       },
-      plugins: { legend:{position:'top'} }
-    }
+      plugins: { legend: { position: "top" } },
+    },
   });
 }
 
 // 6. Update main chart
 function updateChart(rows) {
   const dataRows = rows.slice(1); // drop group average
-  const metric = document.getElementById('metric-select').value;
-  const topN   = Math.max(1, parseInt(document.getElementById('top-n').value) || 10);
+  const metric = document.getElementById("metric-select").value;
+  const topN = Math.max(
+    1,
+    parseInt(document.getElementById("top-n").value) || 10
+  );
 
   let sorted = [...dataRows];
-  if (metric==='pieces')      sorted.sort((a,b)=>b.pieces - a.pieces);
-  else if (metric==='skus')   sorted.sort((a,b)=>b.skus   - a.skus);
-  else if (metric==='dollars')sorted.sort((a,b)=>b.dollars-b.dollars);
-  else                        sorted.sort((a,b)=>b.pieces - a.pieces);
+  if (metric === "pieces") sorted.sort((a, b) => b.pieces - a.pieces);
+  else if (metric === "skus") sorted.sort((a, b) => b.skus - a.skus);
+  else if (metric === "dollars") sorted.sort((a, b) => b.dollars - b.dollars);
+  else sorted.sort((a, b) => b.pieces - a.pieces);
 
   const sliced = sorted.slice(0, topN);
-  chart.data.labels           = sliced.map(r=>r.name);
-  chart.data.datasets[0].data = sliced.map(r=>r.pieces);
-  chart.data.datasets[1].data = sliced.map(r=>r.skus);
-  chart.data.datasets[2].data = sliced.map(r=>r.dollars);
-  chart.data.datasets[0].hidden = metric!=='all'&&metric!=='pieces';
-  chart.data.datasets[1].hidden = metric!=='all'&&metric!=='skus';
-  chart.data.datasets[2].hidden = metric!=='all'&&metric!=='dollars';
+  chart.data.labels = sliced.map((r) => r.name);
+  chart.data.datasets[0].data = sliced.map((r) => r.pieces);
+  chart.data.datasets[1].data = sliced.map((r) => r.skus);
+  chart.data.datasets[2].data = sliced.map((r) => r.dollars);
+  chart.data.datasets[0].hidden = metric !== "all" && metric !== "pieces";
+  chart.data.datasets[1].hidden = metric !== "all" && metric !== "skus";
+  chart.data.datasets[2].hidden = metric !== "all" && metric !== "dollars";
   chart.update();
 }
 
 // 7. Render averages table
 function renderAvgTable(rows) {
-  const tbody = document.querySelector('#avgTable.responsive tbody');
-  tbody.innerHTML = '';
-  rows.forEach(r => {
-    const tr = document.createElement('tr');
+  const tbody = document.querySelector("#avgTable.responsive tbody");
+  tbody.innerHTML = "";
+  rows.forEach((r) => {
+    const tr = document.createElement("tr");
     tr.innerHTML = `
       <td data-label="Employee">${r.name}</td>
       <td data-label="Pieces/hr">${r.pieces.toFixed(2)}</td>
@@ -266,221 +292,312 @@ function renderAvgTable(rows) {
 
 // 8. Sort avgTable
 function setupAvgSorting() {
-  document.querySelectorAll('#avgTable.responsive th.sortable').forEach(th => {
-    th.addEventListener('click', () => {
-      const key = th.dataset.key;
-      const asc = !th.classList.contains('asc');
-      const [group, ...rest] = avgRows;
-      rest.sort((a,b) => a[key]<b[key] ? (asc?-1:1) : a[key]>b[key] ? (asc?1:-1):0);
-      avgRows = [group, ...rest];
-      document.querySelectorAll('#avgTable.responsive th').forEach(h=>h.classList.remove('asc','desc'));
-      th.classList.add(asc?'asc':'desc');
-      renderAvgTable(avgRows);
+  document
+    .querySelectorAll("#avgTable.responsive th.sortable")
+    .forEach((th) => {
+      th.addEventListener("click", () => {
+        const key = th.dataset.key;
+        const asc = !th.classList.contains("asc");
+        const [group, ...rest] = avgRows;
+        rest.sort((a, b) =>
+          a[key] < b[key]
+            ? asc
+              ? -1
+              : 1
+            : a[key] > b[key]
+            ? asc
+              ? 1
+              : -1
+            : 0
+        );
+        avgRows = [group, ...rest];
+        document
+          .querySelectorAll("#avgTable.responsive th")
+          .forEach((h) => h.classList.remove("asc", "desc"));
+        th.classList.add(asc ? "asc" : "desc");
+        renderAvgTable(avgRows);
+      });
     });
-  });
 }
 
 // 9. Init employee trend chart
 function initEmployeeTrendChart() {
-  const ctx = document.getElementById('employeeTrendChart').getContext('2d');
+  const ctx = document.getElementById("employeeTrendChart").getContext("2d");
   if (employeeTrendChart) employeeTrendChart.destroy();
   employeeTrendChart = new Chart(ctx, {
-    type: 'line',
+    type: "line",
     data: {
       labels: [],
       datasets: [
-        { label:'Pieces/hr', data:[], yAxisID:'yPieces', fill:false, tension:0.3, pointRadius:3 },
-        { label:'SKU/hr',    data:[], yAxisID:'yPieces', fill:false, tension:0.3, pointRadius:3 },
-        { label:'$/hr',      data:[], yAxisID:'yDollars',fill:false, tension:0.3, pointRadius:3 }
-      ]
+        {
+          label: "Pieces/hr",
+          data: [],
+          yAxisID: "yPieces",
+          fill: false,
+          tension: 0.3,
+          pointRadius: 3,
+        },
+        {
+          label: "SKU/hr",
+          data: [],
+          yAxisID: "yPieces",
+          fill: false,
+          tension: 0.3,
+          pointRadius: 3,
+        },
+        {
+          label: "$/hr",
+          data: [],
+          yAxisID: "yDollars",
+          fill: false,
+          tension: 0.3,
+          pointRadius: 3,
+        },
+      ],
     },
     options: {
-      responsive:true,
-      maintainAspectRatio: false, 
+      responsive: true,
+      maintainAspectRatio: false,
       scales: {
-        x: { title:{display:true,text:'Date'}, ticks:{autoSkip:true, maxRotation:45,minRotation:45} },
-        yPieces: { type:'linear',position:'left',beginAtZero:true, title:{display:true,text:'Pieces & SKU/hr'}},
-        yDollars:{ type:'linear',position:'right',beginAtZero:true,grid:{drawOnChartArea:false},
-                   title:{display:true,text:'$ per hr'}, ticks:{callback:v=>'$'+v}}
+        x: {
+          title: { display: true, text: "Date" },
+          ticks: { autoSkip: true, maxRotation: 45, minRotation: 45 },
+        },
+        yPieces: {
+          type: "linear",
+          position: "left",
+          beginAtZero: true,
+          title: { display: true, text: "Pieces & SKU/hr" },
+        },
+        yDollars: {
+          type: "linear",
+          position: "right",
+          beginAtZero: true,
+          grid: { drawOnChartArea: false },
+          title: { display: true, text: "$ per hr" },
+          ticks: { callback: (v) => "$" + v },
+        },
       },
-      plugins:{legend:{position:'top'}}
-    }
+      plugins: { legend: { position: "top" } },
+    },
   });
 }
 
 // 10. Update employee trend
 function updateEmployeeTrendChart(raw) {
-  const term    = document.getElementById('employee-search').value.trim().toLowerCase();
-  const section = document.getElementById('employee-trend-section');
-  const metric  = document.getElementById('metric-select').value;
+  const term = document
+    .getElementById("employee-search")
+    .value.trim()
+    .toLowerCase();
+  const section = document.getElementById("employee-trend-section");
+  const metric = document.getElementById("metric-select").value;
 
   // Hide if no employee selected
   if (!term) {
-    section.style.display = 'none';
-    document.querySelector('#metricsChart').parentElement.style.display = 'block';
+    section.style.display = "none";
+    document.querySelector("#metricsChart").parentElement.style.display =
+      "block";
     return;
   }
 
   // Apply store/account/timeframe/employee filters
-  let filtered = raw.filter(i => {
+  let filtered = raw.filter((i) => {
     // Store filter
-    const storeTerm = document.getElementById('store-search').value.toLowerCase();
-    if (storeTerm && !i.StoreName.toLowerCase().includes(storeTerm)) return false;
+    const storeTerm = document
+      .getElementById("store-search")
+      .value.toLowerCase();
+    if (storeTerm && !i.StoreName.toLowerCase().includes(storeTerm))
+      return false;
 
     // Account filter
-    const acctTerm = document.getElementById('account-search').value.toLowerCase();
-    const acctName = (i.AccountName || '').toLowerCase();
+    const acctTerm = document
+      .getElementById("account-search")
+      .value.toLowerCase();
+    const acctName = (i.AccountName || "").toLowerCase();
     const acctGroup = ACCOUNT_GROUPS[acctTerm] || [acctTerm];
     if (acctTerm && !acctGroup.includes(acctName)) return false;
 
-
-
     // Timeframe filter
-    const tf = document.getElementById('timeframe-select').value;
-    const toggle = document.getElementById('trend-toggle');
-    const toggleLabel = toggle.closest('.toggle-wrapper');
+    const tf = document.getElementById("timeframe-select").value;
+    const toggle = document.getElementById("trend-toggle");
+    const toggleLabel = toggle.closest(".toggle-wrapper");
 
-    if (tf === 'week' || tf === 'month') {
+    if (tf === "week" || tf === "month") {
       toggle.disabled = true;
       toggle.checked = false; // fallback to daily view
-      toggleLabel.classList.add('disabled');
+      toggleLabel.classList.add("disabled");
     } else {
       toggle.disabled = false;
-      toggleLabel.classList.remove('disabled');
+      toggleLabel.classList.remove("disabled");
     }
-    if (tf !== 'all') {
+    if (tf !== "all") {
       const cutoff = new Date();
-      if (tf === 'week')  cutoff.setDate(cutoff.getDate() - 7);
-      if (tf === 'month') cutoff.setMonth(cutoff.getMonth() - 1);
-      if (tf === '6month')cutoff.setMonth(cutoff.getMonth() - 6);
-      if (tf === 'year')  cutoff.setFullYear(cutoff.getFullYear() - 1);
+      if (tf === "week") cutoff.setDate(cutoff.getDate() - 7);
+      if (tf === "month") cutoff.setMonth(cutoff.getMonth() - 1);
+      if (tf === "6month") cutoff.setMonth(cutoff.getMonth() - 6);
+      if (tf === "year") cutoff.setFullYear(cutoff.getFullYear() - 1);
       if (new Date(i.DateOfInv) < cutoff) return false;
     }
 
     // Exact employee match
-    return (`${i.FirstName} ${i.LastName}`.toLowerCase() === term);
+    return `${i.FirstName} ${i.LastName}`.toLowerCase() === term;
   });
 
   // Hide if no data after filtering
   if (filtered.length === 0) {
-    section.style.display = 'none';
-    document.querySelector('#metricsChart').parentElement.style.display = 'block';
+    section.style.display = "none";
+    document.querySelector("#metricsChart").parentElement.style.display =
+      "block";
     return;
   }
 
   // Group by date and compute daily averages
-  const showMonthly = document.getElementById('trend-toggle').checked;
+  const showMonthly = document.getElementById("trend-toggle").checked;
   const byGroup = {};
 
-  filtered.forEach(i => {
+  filtered.forEach((i) => {
     let key;
     if (showMonthly) {
       const date = new Date(i.DateOfInv);
-      key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`; // YYYY-MM
+      key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+        2,
+        "0"
+      )}`; // YYYY-MM
     } else {
-      key = i.DateOfInv.slice(0,10); // YYYY-MM-DD
+      key = i.DateOfInv.slice(0, 10); // YYYY-MM-DD
     }
 
-    if (!byGroup[key]) byGroup[key] = { p:0, s:0, d:0, c:0 };
-    byGroup[key].p += i.PiecesPerHr  || 0;
-    byGroup[key].s += i.SkusPerHr    || 0;
-    byGroup[key].d += i.DollarPerHr  || 0;
+    if (!byGroup[key]) byGroup[key] = { p: 0, s: 0, d: 0, c: 0 };
+    byGroup[key].p += i.PiecesPerHr || 0;
+    byGroup[key].s += i.SkusPerHr || 0;
+    byGroup[key].d += i.DollarPerHr || 0;
     byGroup[key].c++;
   });
 
-  const keys        = Object.keys(byGroup).sort();
-  const piecesData  = keys.map(k => +(byGroup[k].p / byGroup[k].c).toFixed(2));
-  const skuData     = keys.map(k => +(byGroup[k].s / byGroup[k].c).toFixed(2));
-  const dollarsData = keys.map(k => +(byGroup[k].d / byGroup[k].c).toFixed(2));
-
+  const keys = Object.keys(byGroup).sort();
+  const piecesData = keys.map((k) => +(byGroup[k].p / byGroup[k].c).toFixed(2));
+  const skuData = keys.map((k) => +(byGroup[k].s / byGroup[k].c).toFixed(2));
+  const dollarsData = keys.map(
+    (k) => +(byGroup[k].d / byGroup[k].c).toFixed(2)
+  );
 
   // Update chart data
-  section.style.display = 'block';
-  document.querySelector('#metricsChart').parentElement.style.display = 'none';
+  section.style.display = "block";
+  document.querySelector("#metricsChart").parentElement.style.display = "none";
   employeeTrendChart.data.labels = keys;
-  employeeTrendChart.data.datasets[0].data  = piecesData;
-  employeeTrendChart.data.datasets[1].data  = skuData;
-  employeeTrendChart.data.datasets[2].data  = dollarsData;
+  employeeTrendChart.data.datasets[0].data = piecesData;
+  employeeTrendChart.data.datasets[1].data = skuData;
+  employeeTrendChart.data.datasets[2].data = dollarsData;
 
   // Show/hide lines based on metric dropdown
-  employeeTrendChart.data.datasets[0].hidden = metric !== 'all' && metric !== 'pieces';
-  employeeTrendChart.data.datasets[1].hidden = metric !== 'all' && metric !== 'skus';
-  employeeTrendChart.data.datasets[2].hidden = metric !== 'all' && metric !== 'dollars';
+  employeeTrendChart.data.datasets[0].hidden =
+    metric !== "all" && metric !== "pieces";
+  employeeTrendChart.data.datasets[1].hidden =
+    metric !== "all" && metric !== "skus";
+  employeeTrendChart.data.datasets[2].hidden =
+    metric !== "all" && metric !== "dollars";
 
   // Optional: update chart title
   employeeTrendChart.options.plugins.title = {
     display: true,
-    text: `${document.getElementById('employee-search').value} – Trend`
+    text: `${document.getElementById("employee-search").value} – Trend`,
   };
 
-  employeeTrendChart.options.scales.x.title.text = showMonthly ? 'Month' : 'Date';
+  employeeTrendChart.options.scales.x.title.text = showMonthly
+    ? "Month"
+    : "Date";
   employeeTrendChart.update();
 }
 
-
 // 11. Sort metricsTable
 function setupMetricsTableSorting() {
-  document.querySelectorAll('#metricsTable.responsive th.sortable').forEach(th => {
-    th.addEventListener('click', () => {
-      const key = th.dataset.key;
-      if (tableSortKey === key) tableSortAsc = !tableSortAsc;
-      else { tableSortKey = key; tableSortAsc = true; }
-      document.querySelectorAll('#metricsTable.responsive th').forEach(h => h.classList.remove('asc','desc'));
-      th.classList.add(tableSortAsc?'asc':'desc');
-      debouncedUpdate(rawData);
+  document
+    .querySelectorAll("#metricsTable.responsive th.sortable")
+    .forEach((th) => {
+      th.addEventListener("click", () => {
+        const key = th.dataset.key;
+        if (tableSortKey === key) tableSortAsc = !tableSortAsc;
+        else {
+          tableSortKey = key;
+          tableSortAsc = true;
+        }
+        document
+          .querySelectorAll("#metricsTable.responsive th")
+          .forEach((h) => h.classList.remove("asc", "desc"));
+        th.classList.add(tableSortAsc ? "asc" : "desc");
+        debouncedUpdate(rawData);
+      });
     });
-  });
 }
 
 // 12. Render pagination controls
 function renderPagination(totalItems) {
   const totalPages = Math.ceil(totalItems / rowsPerPage);
-  const pg = document.getElementById('pagination');
+  const pg = document.getElementById("pagination");
   pg.innerHTML = `
-    <button ${currentPage===1?'disabled':''} id="prev">Prev</button>
+    <button ${currentPage === 1 ? "disabled" : ""} id="prev">Prev</button>
     <span>Page ${currentPage} of ${totalPages}</span>
-    <button ${currentPage===totalPages?'disabled':''} id="next">Next</button>
+    <button ${
+      currentPage === totalPages ? "disabled" : ""
+    } id="next">Next</button>
   `;
-  pg.querySelector('#prev').onclick = () => { if(currentPage>1){ currentPage--; debouncedUpdate(rawData); } };
-  pg.querySelector('#next').onclick = () => { if(currentPage<totalPages){ currentPage++; debouncedUpdate(rawData); } };
+  pg.querySelector("#prev").onclick = () => {
+    if (currentPage > 1) {
+      currentPage--;
+      debouncedUpdate(rawData);
+    }
+  };
+  pg.querySelector("#next").onclick = () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      debouncedUpdate(rawData);
+    }
+  };
 }
 
 // 13. Render raw table with pagination
 function renderTable(data) {
-  const tbody = document.querySelector('#metricsTable.responsive tbody');
-  tbody.innerHTML = '';
+  const tbody = document.querySelector("#metricsTable.responsive tbody");
+  tbody.innerHTML = "";
   const start = (currentPage - 1) * rowsPerPage;
   const pageData = data.slice(start, start + rowsPerPage);
 
-  pageData.forEach(item => {
-    const tr = document.createElement('tr');
+  pageData.forEach((item) => {
+    const tr = document.createElement("tr");
     tr.innerHTML = `
       <td data-label="Employee">${item.FirstName} ${item.LastName}</td>
-      <td data-label="Account">${ACCOUNT_DISPLAY_NAME[(item.AccountName||'').toLowerCase()] || item.AccountName || ''}</td>
+      <td data-label="Account">${
+        ACCOUNT_DISPLAY_NAME[(item.AccountName || "").toLowerCase()] ||
+        item.AccountName ||
+        ""
+      }</td>
       <td data-label="Store">
-        <span class="clickable-store" data-store="${item.StoreName}">${item.StoreName}</span>
+        <span class="clickable-store" data-store="${item.StoreName}">${
+      item.StoreName
+    }</span>
       </td>
-      <td data-label="Date">${new Date(item.DateOfInv).toLocaleDateString()}</td>
-      <td data-label="Pieces/hr">${(item.PiecesPerHr||0).toFixed(2)}</td>
-      <td data-label="$/hr">${(item.DollarPerHr||0).toFixed(2)}</td>
-      <td data-label="SKU/hr">${(item.SkusPerHr||0).toFixed(2)}</td>
-      <td data-label="Avg Δ">${(item.AVG_DELTA||0).toFixed(2)}</td>
-      <td data-label="Gap5">${item.GAP5_COUNT||0}</td>
-      <td data-label="Gap10">${item.GAP10_COUNT||0}</td>
-      <td data-label="Gap15">${item.GAP15_COUNT||0}</td>
+      <td data-label="Date">${new Date(
+        item.DateOfInv
+      ).toLocaleDateString()}</td>
+      <td data-label="Pieces/hr">${(item.PiecesPerHr || 0).toFixed(2)}</td>
+      <td data-label="$/hr">${(item.DollarPerHr || 0).toFixed(2)}</td>
+      <td data-label="SKU/hr">${(item.SkusPerHr || 0).toFixed(2)}</td>
+      <td data-label="Avg Δ">${(item.AVG_DELTA || 0).toFixed(2)}</td>
+      <td data-label="Gap5">${item.GAP5_COUNT || 0}</td>
+      <td data-label="Gap10">${item.GAP10_COUNT || 0}</td>
+      <td data-label="Gap15">${item.GAP15_COUNT || 0}</td>
     `;
     tbody.appendChild(tr);
 
-        // Attach click event to store names
-    tbody.querySelectorAll('.clickable-store').forEach(span => {
-      span.addEventListener('click', () => {
-        const store = span.getAttribute('data-store');
-        document.getElementById('store-search').value = store;
+    // Attach click event to store names
+    tbody.querySelectorAll(".clickable-store").forEach((span) => {
+      span.addEventListener("click", () => {
+        const store = span.getAttribute("data-store");
+        document.getElementById("store-search").value = store;
         currentPage = 1;
         debouncedUpdate(rawData);
       });
     });
-
   });
 
   renderPagination(data.length);
@@ -488,87 +605,93 @@ function renderTable(data) {
 
 // 14. Main update: filter, sort, render
 function updateView(raw) {
-//   currentPage = 1;
-  const storeTerm = document.getElementById('store-search').value.toLowerCase();
-  const empTerm   = document.getElementById('employee-search').value.toLowerCase();
-  const acctTerm  = document.getElementById('account-search').value.toLowerCase();
-  const tf        = document.getElementById('timeframe-select').value;
-  const now       = new Date();
+  //   currentPage = 1;
+  const storeTerm = document.getElementById("store-search").value.toLowerCase();
+  const empTerm = document
+    .getElementById("employee-search")
+    .value.toLowerCase();
+  const acctTerm = document
+    .getElementById("account-search")
+    .value.toLowerCase();
+  const tf = document.getElementById("timeframe-select").value;
+  const now = new Date();
 
-  const exactDate = document.getElementById('date-filter').value;
+  const exactDate = document.getElementById("date-filter").value;
 
-
-  let filtered = raw.filter(i => {
-    if (storeTerm && !i.StoreName.toLowerCase().includes(storeTerm)) return false;
+  let filtered = raw.filter((i) => {
+    if (storeTerm && !i.StoreName.toLowerCase().includes(storeTerm))
+      return false;
     const name = `${i.FirstName} ${i.LastName}`.toLowerCase();
     if (empTerm && !name.includes(empTerm)) return false;
-    const acctTerm = document.getElementById('account-search').value.toLowerCase();
-    const acctName = (i.AccountName || '').toLowerCase();
+    const acctTerm = document
+      .getElementById("account-search")
+      .value.toLowerCase();
+    const acctName = (i.AccountName || "").toLowerCase();
     const acctGroup = ACCOUNT_GROUPS[acctTerm] || [acctTerm];
     if (acctTerm && !acctGroup.includes(acctName)) return false;
 
     if (exactDate) {
-  const invDate = i.DateOfInv.slice(0, 10); // 'YYYY-MM-DD'
-    if (invDate !== exactDate) return false;
-  } else if (tf !== 'all') {
-    const cutoff = new Date(now);
-    if (tf === 'week')   cutoff.setDate(cutoff.getDate() - 7);
-    if (tf === 'month')  cutoff.setMonth(cutoff.getMonth() - 1);
-    if (tf === '6month') cutoff.setMonth(cutoff.getMonth() - 6);
-    if (tf === 'year')   cutoff.setFullYear(cutoff.getFullYear() - 1);
-    if (new Date(i.DateOfInv) < cutoff) return false;
-  }
+      const invDate = i.DateOfInv.slice(0, 10); // 'YYYY-MM-DD'
+      if (invDate !== exactDate) return false;
+    } else if (tf !== "all") {
+      const cutoff = new Date(now);
+      if (tf === "week") cutoff.setDate(cutoff.getDate() - 7);
+      if (tf === "month") cutoff.setMonth(cutoff.getMonth() - 1);
+      if (tf === "6month") cutoff.setMonth(cutoff.getMonth() - 6);
+      if (tf === "year") cutoff.setFullYear(cutoff.getFullYear() - 1);
+      if (new Date(i.DateOfInv) < cutoff) return false;
+    }
 
     return true;
   });
 
   // sort raw table
-  filtered.sort((a,b) => {
+  filtered.sort((a, b) => {
     let vA, vB;
-    switch(tableSortKey) {
-      case 'employee':
+    switch (tableSortKey) {
+      case "employee":
         vA = `${a.FirstName} ${a.LastName}`.toLowerCase();
         vB = `${b.FirstName} ${b.LastName}`.toLowerCase();
         break;
-      case 'account':
-        vA = (a.AccountName||'').toLowerCase();
-        vB = (b.AccountName||'').toLowerCase();
+      case "account":
+        vA = (a.AccountName || "").toLowerCase();
+        vB = (b.AccountName || "").toLowerCase();
         break;
-      case 'store':
+      case "store":
         vA = a.StoreName.toLowerCase();
         vB = b.StoreName.toLowerCase();
         break;
-      case 'date':
+      case "date":
         vA = new Date(a.DateOfInv);
         vB = new Date(b.DateOfInv);
         break;
-      case 'pieces':
-        vA = a.PiecesPerHr||0;
-        vB = b.PiecesPerHr||0;
+      case "pieces":
+        vA = a.PiecesPerHr || 0;
+        vB = b.PiecesPerHr || 0;
         break;
-      case 'dollars':
-        vA = a.DollarPerHr||0;
-        vB = b.DollarPerHr||0;
+      case "dollars":
+        vA = a.DollarPerHr || 0;
+        vB = b.DollarPerHr || 0;
         break;
-      case 'skus':
-        vA = a.SkusPerHr||0;
-        vB = b.SkusPerHr||0;
+      case "skus":
+        vA = a.SkusPerHr || 0;
+        vB = b.SkusPerHr || 0;
         break;
-      case 'avg_delta':
-        vA = a.AVG_DELTA||0;
-        vB = b.AVG_DELTA||0;
+      case "avg_delta":
+        vA = a.AVG_DELTA || 0;
+        vB = b.AVG_DELTA || 0;
         break;
-      case 'gap5_count':
-        vA = a.GAP5_COUNT||0;
-        vB = b.GAP5_COUNT||0;
+      case "gap5_count":
+        vA = a.GAP5_COUNT || 0;
+        vB = b.GAP5_COUNT || 0;
         break;
-      case 'gap10_count':
-        vA = a.GAP10_COUNT||0;
-        vB = b.GAP10_COUNT||0;
+      case "gap10_count":
+        vA = a.GAP10_COUNT || 0;
+        vB = b.GAP10_COUNT || 0;
         break;
-      case 'gap15_count':
-        vA = a.GAP15_COUNT||0;
-        vB = b.GAP15_COUNT||0;
+      case "gap15_count":
+        vA = a.GAP15_COUNT || 0;
+        vB = b.GAP15_COUNT || 0;
         break;
       default:
         return 0;
@@ -582,7 +705,7 @@ function updateView(raw) {
 
   // compute & render averages + chart + trend
   const individuals = computeAverages(filtered);
-  const groupAvg    = computeGroupAvg(individuals);
+  const groupAvg = computeGroupAvg(individuals);
   avgRows = [groupAvg, ...individuals];
   updateChart(avgRows);
   renderAvgTable(avgRows);
@@ -592,23 +715,22 @@ function updateView(raw) {
 // 15. Wire up on load
 const debouncedUpdate = debounce(updateView, 300);
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener("DOMContentLoaded", async () => {
   rawData = await loadData();
 
   initStoreDatalist(rawData);
   initEmployeeDatalist(rawData);
   initAccountDatalist(rawData);
 
-  document.getElementById('date-filter').addEventListener('change', () => {
-  if (document.getElementById('date-filter').value) {
-    document.getElementById('timeframe-select').value = 'all';
-  }
-});
+  document.getElementById("date-filter").addEventListener("change", () => {
+    if (document.getElementById("date-filter").value) {
+      document.getElementById("timeframe-select").value = "all";
+    }
+  });
 
-document.getElementById('trend-toggle').addEventListener('change', () => {
-  updateEmployeeTrendChart(rawData);
-});
-
+  document.getElementById("trend-toggle").addEventListener("change", () => {
+    updateEmployeeTrendChart(rawData);
+  });
 
   initChart();
   initEmployeeTrendChart();
@@ -617,70 +739,67 @@ document.getElementById('trend-toggle').addEventListener('change', () => {
   setupAutoClear();
   // Filter & control listeners
   [
-    'store-search',
-    'employee-search',
-    'account-search',
-    'metric-select',
-    'top-n',
-    'timeframe-select',
-    'date-filter'
-  ].forEach(id => {
+    "store-search",
+    "employee-search",
+    "account-search",
+    "metric-select",
+    "top-n",
+    "timeframe-select",
+    "date-filter",
+  ].forEach((id) => {
     const el = document.getElementById(id);
-      el.addEventListener('input', () => {
-    currentPage = 1;
-    debouncedUpdate(rawData);
-  });
+    el.addEventListener("input", () => {
+      currentPage = 1;
+      debouncedUpdate(rawData);
+    });
 
-  el.addEventListener('change', () => {
-    currentPage = 1;
-    debouncedUpdate(rawData);
+    el.addEventListener("change", () => {
+      currentPage = 1;
+      debouncedUpdate(rawData);
+    });
   });
-});
 
   // Toggle averages table
-  document.getElementById('toggle-avg-btn')
-    .addEventListener('click', () => {
-      const sec  = document.getElementById('avg-section');
-      const show = sec.style.display === 'none';
-      sec.style.display = show ? 'block' : 'none';
-      document.getElementById('toggle-avg-btn').textContent =
-        show ? 'Hide All Averages' : 'Show All Averages';
-    });
+  document.getElementById("toggle-avg-btn").addEventListener("click", () => {
+    const sec = document.getElementById("avg-section");
+    const show = sec.style.display === "none";
+    sec.style.display = show ? "block" : "none";
+    document.getElementById("toggle-avg-btn").textContent = show
+      ? "Hide All Averages"
+      : "Show All Averages";
+  });
 
   // Initial render
   updateView(rawData);
 });
 
-
 function setupAutoClear() {
-  document.querySelectorAll('input').forEach(input => {
-    if (typeof input.select === 'function') {
-      input.addEventListener('focus', () => {
-        const wasNotEmpty = input.value !== '';
-        input.value = '';
+  document.querySelectorAll("input").forEach((input) => {
+    if (typeof input.select === "function") {
+      input.addEventListener("focus", () => {
+        const wasNotEmpty = input.value !== "";
+        input.value = "";
         if (wasNotEmpty) {
-          updateDatalists();         // ✅ force-refresh suggestions
+          updateDatalists(); // ✅ force-refresh suggestions
           currentPage = 1;
           debouncedUpdate(rawData);
         }
       });
 
-      input.addEventListener('input', () => {
-        updateDatalists();           // ✅ keep suggestions in sync
+      input.addEventListener("input", () => {
+        updateDatalists(); // ✅ keep suggestions in sync
         currentPage = 1;
         debouncedUpdate(rawData);
       });
 
-      input.addEventListener('mouseup', e => e.preventDefault());
+      input.addEventListener("mouseup", (e) => e.preventDefault());
     }
   });
 }
 
-
-
 // 2) Inside your existing DOMContentLoaded handler, after you do all your
 //    init*() calls but _before_ your initial updateView(rawData)
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener("DOMContentLoaded", async () => {
   rawData = await loadData();
 
   initStoreDatalist(rawData);
@@ -699,9 +818,9 @@ document.addEventListener('DOMContentLoaded', async () => {
  * Completely replaces a datalist’s options
  */
 function updateDataList(datalistElement, values) {
-  datalistElement.innerHTML = '';
-  values.forEach(v => {
-    const opt = document.createElement('option');
+  datalistElement.innerHTML = "";
+  values.forEach((v) => {
+    const opt = document.createElement("option");
     opt.value = v;
     datalistElement.appendChild(opt);
   });
@@ -711,92 +830,122 @@ function updateDataList(datalistElement, values) {
  * Rebuild all three datalists based on the other two selected values
  */
 function updateDatalists() {
-  const empVal   = document.getElementById('employee-search').value.trim();
-  const accVal   = document.getElementById('account-search').value.trim();
-  const storeVal = document.getElementById('store-search').value.trim();
+  const empVal = document.getElementById("employee-search").value.trim();
+  const accVal = document.getElementById("account-search").value.trim();
+  const storeVal = document.getElementById("store-search").value.trim();
 
   // 1) Employees: filter rawData by Account & Store
-  const empOptions = Array.from(new Set(
-    rawData
-      .filter(i => (() => {
-  const acctList = ACCOUNT_GROUPS[accVal.toLowerCase()] || [accVal.toLowerCase()];
-  return !accVal || acctList.includes((i.AccountName || '').toLowerCase());
-})() &&
-                   (!storeVal || i.StoreName   === storeVal))
-      .map(i => `${i.FirstName} ${i.LastName}`)
-  )).sort();
-  updateDataList(document.getElementById('employee-list'), empOptions);
+  const empOptions = Array.from(
+    new Set(
+      rawData
+        .filter(
+          (i) =>
+            (() => {
+              const acctList = ACCOUNT_GROUPS[accVal.toLowerCase()] || [
+                accVal.toLowerCase(),
+              ];
+              return (
+                !accVal ||
+                acctList.includes((i.AccountName || "").toLowerCase())
+              );
+            })() &&
+            (!storeVal || i.StoreName === storeVal)
+        )
+        .map((i) => `${i.FirstName} ${i.LastName}`)
+    )
+  ).sort();
+  updateDataList(document.getElementById("employee-list"), empOptions);
 
   // 2) Accounts: filter rawData by Employee & Store
-  const accOptions = Array.from(new Set(
-    rawData
-      .filter(i => (!empVal   || `${i.FirstName} ${i.LastName}` === empVal) &&
-                   (!storeVal || i.StoreName             === storeVal))
-      .map(i => i.AccountName || '')
-  ))
-  .filter(a => a)   // drop any empty strings
-  .sort();
-  updateDataList(document.getElementById('account-list'), accOptions);
+  const accOptions = Array.from(
+    new Set(
+      rawData
+        .filter(
+          (i) =>
+            (!empVal || `${i.FirstName} ${i.LastName}` === empVal) &&
+            (!storeVal || i.StoreName === storeVal)
+        )
+        .map((i) => i.AccountName || "")
+    )
+  )
+    .filter((a) => a) // drop any empty strings
+    .sort();
+  updateDataList(document.getElementById("account-list"), accOptions);
 
   // 3) Stores: filter rawData by Employee & Account
-  const storeOptions = Array.from(new Set(
-    rawData
-      .filter(i => (!empVal || `${i.FirstName} ${i.LastName}` === empVal) &&
-                   (!accVal || i.AccountName           === accVal))
-      .map(i => i.StoreName)
-  )).sort();
-  updateDataList(document.getElementById('store-list'), storeOptions);
+  const storeOptions = Array.from(
+    new Set(
+      rawData
+        .filter(
+          (i) =>
+            (!empVal || `${i.FirstName} ${i.LastName}` === empVal) &&
+            (!accVal || i.AccountName === accVal)
+        )
+        .map((i) => i.StoreName)
+    )
+  ).sort();
+  updateDataList(document.getElementById("store-list"), storeOptions);
 }
 
-document.getElementById('employeeTrendChart').onclick = function(evt) {
-  const points = employeeTrendChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+document.getElementById("employeeTrendChart").onclick = function (evt) {
+  const points = employeeTrendChart.getElementsAtEventForMode(
+    evt,
+    "nearest",
+    { intersect: true },
+    true
+  );
   if (points.length) {
     const date = employeeTrendChart.data.labels[points[0].index]; // YYYY-MM-DD
     scrollToRowByDate(date);
   }
 };
 
-
 function parseDate(str) {
   // Handle ISO (chart) format "YYYY-MM-DD"
   if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
-    const [y, m, d] = str.split('-').map(Number);
+    const [y, m, d] = str.split("-").map(Number);
     return new Date(y, m - 1, d);
   }
 
   // Handle localized display formats (e.g., "2/18/2025")
   const parsed = new Date(str);
-  return isNaN(parsed.getTime()) ? null : new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+  return isNaN(parsed.getTime())
+    ? null
+    : new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
 }
-
 
 function scrollToRowByDate(dateString) {
   const targetDate = parseDate(dateString);
   if (!targetDate) return;
 
-  const exactDate = document.getElementById('date-filter').value;
+  const exactDate = document.getElementById("date-filter").value;
 
-  const storeTerm = document.getElementById('store-search').value.toLowerCase();
-  const empTerm   = document.getElementById('employee-search').value.toLowerCase();
-  const acctTerm  = document.getElementById('account-search').value.toLowerCase();
-  const tf        = document.getElementById('timeframe-select').value;
-  const now       = new Date();
+  const storeTerm = document.getElementById("store-search").value.toLowerCase();
+  const empTerm = document
+    .getElementById("employee-search")
+    .value.toLowerCase();
+  const acctTerm = document
+    .getElementById("account-search")
+    .value.toLowerCase();
+  const tf = document.getElementById("timeframe-select").value;
+  const now = new Date();
 
   const acctGroup = ACCOUNT_GROUPS[acctTerm] || [acctTerm];
 
-  const filtered = rawData.filter(i => {
-    if (storeTerm && !i.StoreName.toLowerCase().includes(storeTerm)) return false;
+  const filtered = rawData.filter((i) => {
+    if (storeTerm && !i.StoreName.toLowerCase().includes(storeTerm))
+      return false;
     const name = `${i.FirstName} ${i.LastName}`.toLowerCase();
     if (empTerm && !name.includes(empTerm)) return false;
-    const acctName = (i.AccountName || '').toLowerCase();
+    const acctName = (i.AccountName || "").toLowerCase();
     if (acctTerm && !acctGroup.includes(acctName)) return false;
 
-    if (!exactDate && tf !== 'all') {
+    if (!exactDate && tf !== "all") {
       const cutoff = new Date(now);
-      if (tf === 'week')  cutoff.setDate(cutoff.getDate() - 7);
-      if (tf === 'month') cutoff.setMonth(cutoff.getMonth() - 1);
-      if (tf === '6month')cutoff.setMonth(cutoff.getMonth() - 6);
-      if (tf === 'year')  cutoff.setFullYear(cutoff.getFullYear() - 1);
+      if (tf === "week") cutoff.setDate(cutoff.getDate() - 7);
+      if (tf === "month") cutoff.setMonth(cutoff.getMonth() - 1);
+      if (tf === "6month") cutoff.setMonth(cutoff.getMonth() - 6);
+      if (tf === "year") cutoff.setFullYear(cutoff.getFullYear() - 1);
       if (new Date(i.DateOfInv) < cutoff) return false;
     }
 
@@ -808,7 +957,7 @@ function scrollToRowByDate(dateString) {
     return true;
   });
 
-  const targetIndex = filtered.findIndex(i => {
+  const targetIndex = filtered.findIndex((i) => {
     const date = parseDate(i.DateOfInv.slice(0, 10));
     return date.getTime() === targetDate.getTime();
   });
@@ -822,18 +971,14 @@ function scrollToRowByDate(dateString) {
   renderTable(filtered);
 
   setTimeout(() => {
-    const rows = document.querySelectorAll('#metricsTable.responsive tbody tr');
+    const rows = document.querySelectorAll("#metricsTable.responsive tbody tr");
     const pageStartIndex = (currentPage - 1) * rowsPerPage;
     const rowIndex = targetIndex - pageStartIndex;
     const targetRow = rows[rowIndex];
     if (targetRow) {
-      targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      targetRow.style.backgroundColor = '#fffdcc';
-      setTimeout(() => (targetRow.style.backgroundColor = ''), 2000);
+      targetRow.scrollIntoView({ behavior: "smooth", block: "center" });
+      targetRow.style.backgroundColor = "#fffdcc";
+      setTimeout(() => (targetRow.style.backgroundColor = ""), 2000);
     }
   }, 100);
 }
-
-
-
-
