@@ -592,13 +592,16 @@ function renderTable(data) {
         ""
       }</td>
       <td data-label="Store">
-        <span class="clickable-store" data-store="${item.StoreName}">${
-      item.StoreName
-    }</span>
+        <span class="clickable-store" data-store="${item.StoreName}">
+          ${item.StoreName}
+        </span>
       </td>
-      <td data-label="Date">${new Date(
-        item.DateOfInv
-      ).toLocaleDateString()}</td>
+      <!-- Wrap date in a span with the ISO date in data-date -->
+      <td data-label="Date">
+        <span class="clickable-date" data-date="${item.DateOfInv.slice(0, 10)}">
+          ${new Date(item.DateOfInv).toLocaleDateString()}
+        </span>
+      </td>
       <td data-label="Pieces/hr">${(item.PiecesPerHr || 0).toFixed(2)}</td>
       <td data-label="$/hr">${(item.DollarPerHr || 0).toFixed(2)}</td>
       <td data-label="SKU/hr">${(item.SkusPerHr || 0).toFixed(2)}</td>
@@ -609,11 +612,26 @@ function renderTable(data) {
     `;
     tbody.appendChild(tr);
 
-    // Attach click event to store names
-    tbody.querySelectorAll(".clickable-store").forEach((span) => {
+    // existing store‐click handler
+    tr.querySelectorAll(".clickable-store").forEach((span) => {
       span.addEventListener("click", () => {
         const store = span.getAttribute("data-store");
         document.getElementById("store-search").value = store;
+        currentPage = 1;
+        debouncedUpdate(rawData);
+      });
+    });
+
+    // NEW: date‐click handler
+    tr.querySelectorAll(".clickable-date").forEach((span) => {
+      span.style.cursor = "pointer";
+      span.addEventListener("click", () => {
+        // put ISO date into the date picker…
+        document.getElementById("date-filter").value =
+          span.getAttribute("data-date");
+        // …and switch timeframe to “all” (so it doesn’t get overridden)…
+        document.getElementById("timeframe-select").value = "all";
+        // …reset page & refresh
         currentPage = 1;
         debouncedUpdate(rawData);
       });

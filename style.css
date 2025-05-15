@@ -308,8 +308,10 @@ body {
   height: 700px;
 }
 
-.clickable-store {
+.clickable-store,
+.clickable-date {
   cursor: pointer;
+  text-decoration: underline;
 }
 
 /* Toggle Switch */
