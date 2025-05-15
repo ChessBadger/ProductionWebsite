@@ -555,7 +555,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initEmployeeTrendChart();
   setupAvgSorting();
   setupMetricsTableSorting();
-  setupAutoSelect();
+  setupAutoClear();
   // Filter & control listeners
   [
     'store-search',
@@ -592,12 +592,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 
-// 1) Helper to wire up the auto‑select behavior
 function setupAutoClear() {
   document.querySelectorAll('input').forEach(input => {
     if (typeof input.select === 'function') {
       input.addEventListener('focus', () => {
+        const wasNotEmpty = input.value !== '';
         input.value = '';
+        if (wasNotEmpty) {
+          currentPage = 1;
+          debouncedUpdate(rawData);
+        }
+      });
+      input.addEventListener('input', () => {
         currentPage = 1;
         debouncedUpdate(rawData);
       });
