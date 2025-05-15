@@ -429,7 +429,9 @@ function renderTable(data) {
     tr.innerHTML = `
       <td data-label="Employee">${item.FirstName} ${item.LastName}</td>
       <td data-label="Account">${ACCOUNT_DISPLAY_NAME[(item.AccountName||'').toLowerCase()] || item.AccountName || ''}</td>
-      <td data-label="Store">${item.StoreName}</td>
+      <td data-label="Store">
+        <span class="clickable-store" data-store="${item.StoreName}">${item.StoreName}</span>
+      </td>
       <td data-label="Date">${new Date(item.DateOfInv).toLocaleDateString()}</td>
       <td data-label="Pieces/hr">${(item.PiecesPerHr||0).toFixed(2)}</td>
       <td data-label="$/hr">${(item.DollarPerHr||0).toFixed(2)}</td>
@@ -440,6 +442,17 @@ function renderTable(data) {
       <td data-label="Gap15">${item.GAP15_COUNT||0}</td>
     `;
     tbody.appendChild(tr);
+
+        // Attach click event to store names
+    tbody.querySelectorAll('.clickable-store').forEach(span => {
+      span.addEventListener('click', () => {
+        const store = span.getAttribute('data-store');
+        document.getElementById('store-search').value = store;
+        currentPage = 1;
+        debouncedUpdate(rawData);
+      });
+    });
+
   });
 
   renderPagination(data.length);
