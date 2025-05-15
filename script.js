@@ -774,7 +774,8 @@ function scrollToRowByDate(dateString) {
   const targetDate = parseDate(dateString);
   if (!targetDate) return;
 
-  // Filtered + sorted data (same logic as updateView)
+  const exactDate = document.getElementById('date-filter').value;
+
   const storeTerm = document.getElementById('store-search').value.toLowerCase();
   const empTerm   = document.getElementById('employee-search').value.toLowerCase();
   const acctTerm  = document.getElementById('account-search').value.toLowerCase();
@@ -789,22 +790,24 @@ function scrollToRowByDate(dateString) {
     if (empTerm && !name.includes(empTerm)) return false;
     const acctName = (i.AccountName || '').toLowerCase();
     if (acctTerm && !acctGroup.includes(acctName)) return false;
+
     if (!exactDate && tf !== 'all') {
-    const cutoff = new Date(now);
-    if (tf === 'week')  cutoff.setDate(cutoff.getDate() - 7);
-    if (tf === 'month') cutoff.setMonth(cutoff.getMonth() - 1);
-    if (tf === '6month')cutoff.setMonth(cutoff.getMonth() - 6);
-    if (tf === 'year')  cutoff.setFullYear(cutoff.getFullYear() - 1);
-    if (new Date(i.DateOfInv) < cutoff) return false;
+      const cutoff = new Date(now);
+      if (tf === 'week')  cutoff.setDate(cutoff.getDate() - 7);
+      if (tf === 'month') cutoff.setMonth(cutoff.getMonth() - 1);
+      if (tf === '6month')cutoff.setMonth(cutoff.getMonth() - 6);
+      if (tf === 'year')  cutoff.setFullYear(cutoff.getFullYear() - 1);
+      if (new Date(i.DateOfInv) < cutoff) return false;
+    }
+
     if (exactDate) {
-    const invDate = i.DateOfInv.slice(0, 10); // Ensure it's 'YYYY-MM-DD'
-    if (invDate !== exactDate) return false;
-}
-  }
+      const invDate = i.DateOfInv.slice(0, 10);
+      if (invDate !== exactDate) return false;
+    }
+
     return true;
   });
 
-  // Find index of first match
   const targetIndex = filtered.findIndex(i => {
     const date = parseDate(i.DateOfInv.slice(0, 10));
     return date.getTime() === targetDate.getTime();
@@ -815,11 +818,9 @@ function scrollToRowByDate(dateString) {
     return;
   }
 
-  // Jump to correct page
   currentPage = Math.floor(targetIndex / rowsPerPage) + 1;
   renderTable(filtered);
 
-  // Delay scroll until table is rendered
   setTimeout(() => {
     const rows = document.querySelectorAll('#metricsTable.responsive tbody tr');
     const pageStartIndex = (currentPage - 1) * rowsPerPage;
@@ -832,6 +833,7 @@ function scrollToRowByDate(dateString) {
     }
   }, 100);
 }
+
 
 
 
