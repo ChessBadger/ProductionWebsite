@@ -248,25 +248,45 @@ function initChart() {
 function updateChart(rows) {
   const dataRows = rows.slice(1); // drop group average
   const metric = document.getElementById("metric-select").value;
-  const topN = Math.max(
+  const count = Math.max(
     1,
-    parseInt(document.getElementById("top-n").value) || 10
+    parseInt(document.getElementById("count").value, 10) || 1
   );
+  const showBottom = document.getElementById("direction").checked;
 
+  // sort according to metric AND top/bottom
   let sorted = [...dataRows];
-  if (metric === "pieces") sorted.sort((a, b) => b.pieces - a.pieces);
-  else if (metric === "skus") sorted.sort((a, b) => b.skus - a.skus);
-  else if (metric === "dollars") sorted.sort((a, b) => b.dollars - b.dollars);
-  else sorted.sort((a, b) => b.pieces - a.pieces);
+  if (metric === "pieces") {
+    sorted.sort((a, b) =>
+      showBottom ? a.pieces - b.pieces : b.pieces - a.pieces
+    );
+  } else if (metric === "skus") {
+    sorted.sort((a, b) => (showBottom ? a.skus - b.skus : b.skus - a.skus));
+  } else if (metric === "dollars") {
+    sorted.sort((a, b) =>
+      showBottom ? a.dollars - b.dollars : b.dollars - a.dollars
+    );
+  } else {
+    // default to pieces/hr
+    sorted.sort((a, b) =>
+      showBottom ? a.pieces - b.pieces : b.pieces - a.pieces
+    );
+  }
 
-  const sliced = sorted.slice(0, topN);
+  // slice off the first topN (which is bottom N if showBottom)
+  const sliced = sorted.slice(0, count);
+
+  // now update chart datasets
   chart.data.labels = sliced.map((r) => r.name);
   chart.data.datasets[0].data = sliced.map((r) => r.pieces);
   chart.data.datasets[1].data = sliced.map((r) => r.skus);
   chart.data.datasets[2].data = sliced.map((r) => r.dollars);
+
+  // hide series if a single metric is selected
   chart.data.datasets[0].hidden = metric !== "all" && metric !== "pieces";
   chart.data.datasets[1].hidden = metric !== "all" && metric !== "skus";
   chart.data.datasets[2].hidden = metric !== "all" && metric !== "dollars";
+
   chart.update();
 }
 
@@ -743,7 +763,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     "employee-search",
     "account-search",
     "metric-select",
-    "top-n",
+    "direction",
+    "count",
     "timeframe-select",
     "date-filter",
   ].forEach((id) => {
@@ -752,7 +773,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       currentPage = 1;
       debouncedUpdate(rawData);
     });
-
     el.addEventListener("change", () => {
       currentPage = 1;
       debouncedUpdate(rawData);
@@ -982,3 +1002,17 @@ function scrollToRowByDate(dateString) {
     }
   }, 100);
 }
+
+const dirCheckbox = document.getElementById("direction");
+const countInput = document.getElementById("count");
+const legend = document.querySelector(".show-n legend");
+
+function updateLegend() {
+  const dir = dirCheckbox.checked ? "Bottom" : "Top";
+  const count = Math.max(1, parseInt(countInput.value) || 1);
+  legend.textContent = `Show ${dir} ${count}`;
+}
+
+dirCheckbox.addEventListener("change", updateLegend);
+countInput.addEventListener("input", updateLegend);
+updateLegend();

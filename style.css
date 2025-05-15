@@ -339,3 +339,20 @@ input:checked + .slider:before {
   opacity: 0.5;
   pointer-events: none;
 }
+
+/* style.css */
+.show-n {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+.show-n legend {
+  padding: 0 0.5rem;
+  font-weight: bold;
+}
+.show-n label {
+  white-space: nowrap;
+}
