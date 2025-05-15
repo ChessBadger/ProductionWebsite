@@ -40,9 +40,10 @@ const ACCOUNT_GROUPS = {
   "FUEL ON": ["relaince fuel, llc", "reliance fuel, llc", "fuel on", "schierl"],
 };
 
+// prettier-ignore
 const ACCOUNT_DISPLAY_NAME = {
   "mariano's": "KROGER",
-  kroger: "KROGER",
+  "kroger": "KROGER",
 
   "piggly wiggly - franchise": "PIGGLY WIGGLY",
   "pigs coporate": "PIGGLY WIGGLY",
@@ -61,7 +62,7 @@ const ACCOUNT_DISPLAY_NAME = {
   "ascension rx - man hr": "ASCENSION RX",
   "ascension rx - per k": "ASCENSION RX",
 
-  schierl: "FUEL ON",
+  "schierl": "FUEL ON",
   "relaince fuel, llc": "FUEL ON",
   "reliance fuel, llc": "FUEL ON",
   "fuel on": "FUEL ON",
