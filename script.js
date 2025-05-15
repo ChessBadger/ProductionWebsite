@@ -687,3 +687,87 @@ function updateDatalists() {
   )).sort();
   updateDataList(document.getElementById('store-list'), storeOptions);
 }
+
+document.getElementById('employeeTrendChart').onclick = function(evt) {
+  const points = employeeTrendChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+  if (points.length) {
+    const date = employeeTrendChart.data.labels[points[0].index]; // YYYY-MM-DD
+    scrollToRowByDate(date);
+  }
+};
+
+
+function parseDate(str) {
+  // Handle ISO (chart) format "YYYY-MM-DD"
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+    const [y, m, d] = str.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  // Handle localized display formats (e.g., "2/18/2025")
+  const parsed = new Date(str);
+  return isNaN(parsed.getTime()) ? null : new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+}
+
+
+function scrollToRowByDate(dateString) {
+  const targetDate = parseDate(dateString);
+  if (!targetDate) return;
+
+  // Filtered + sorted data (same logic as updateView)
+  const storeTerm = document.getElementById('store-search').value.toLowerCase();
+  const empTerm   = document.getElementById('employee-search').value.toLowerCase();
+  const acctTerm  = document.getElementById('account-search').value.toLowerCase();
+  const tf        = document.getElementById('timeframe-select').value;
+  const now       = new Date();
+
+  const acctGroup = ACCOUNT_GROUPS[acctTerm] || [acctTerm];
+
+  const filtered = rawData.filter(i => {
+    if (storeTerm && !i.StoreName.toLowerCase().includes(storeTerm)) return false;
+    const name = `${i.FirstName} ${i.LastName}`.toLowerCase();
+    if (empTerm && !name.includes(empTerm)) return false;
+    const acctName = (i.AccountName || '').toLowerCase();
+    if (acctTerm && !acctGroup.includes(acctName)) return false;
+    if (tf !== 'all') {
+      const cutoff = new Date(now);
+      if (tf === 'week') cutoff.setDate(cutoff.getDate() - 7);
+      if (tf === 'month') cutoff.setMonth(cutoff.getMonth() - 1);
+      if (tf === '6month') cutoff.setMonth(cutoff.getMonth() - 6);
+      if (tf === 'year') cutoff.setFullYear(cutoff.getFullYear() - 1);
+      if (new Date(i.DateOfInv) < cutoff) return false;
+    }
+    return true;
+  });
+
+  // Find index of first match
+  const targetIndex = filtered.findIndex(i => {
+    const date = parseDate(i.DateOfInv.slice(0, 10));
+    return date.getTime() === targetDate.getTime();
+  });
+
+  if (targetIndex === -1) {
+    alert("Matching record not found.");
+    return;
+  }
+
+  // Jump to correct page
+  currentPage = Math.floor(targetIndex / rowsPerPage) + 1;
+  renderTable(filtered);
+
+  // Delay scroll until table is rendered
+  setTimeout(() => {
+    const rows = document.querySelectorAll('#metricsTable.responsive tbody tr');
+    const pageStartIndex = (currentPage - 1) * rowsPerPage;
+    const rowIndex = targetIndex - pageStartIndex;
+    const targetRow = rows[rowIndex];
+    if (targetRow) {
+      targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      targetRow.style.backgroundColor = '#fffdcc';
+      setTimeout(() => (targetRow.style.backgroundColor = ''), 2000);
+    }
+  }, 100);
+}
+
+
+
