@@ -19,11 +19,13 @@ const ACCOUNT_GROUPS = {
   "PIGGLY WIGGLY": [
     "PIGGLY WIGGLY - franchise",
     "pigs coporate",
+    "pigs dave s",
     "pigs fox brothers",
     "pigs jake b",
     "pigs malicki",
     "pigs migel",
     "pigs mike day",
+    "pigs red",
     "pigs ryan o",
     "pigs stinebrinks",
     "pigs stoneridge",
@@ -59,6 +61,10 @@ const ACCOUNT_DISPLAY_NAME = {
   "pigs stinebrinks": "PIGGLY WIGGLY",
   "pigs stoneridge": "PIGGLY WIGGLY",
   "pigs tietz": "PIGGLY WIGGLY",
+  "pigs red": "PIGGLY WIGGLY",
+  "pigs dave s": "PIGGLY WIGGLY",
+
+
 
   "ascension rx - man hr": "ASCENSION RX",
   "ascension rx - per k": "ASCENSION RX",
