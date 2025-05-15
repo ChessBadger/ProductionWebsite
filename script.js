@@ -411,12 +411,14 @@ function updateEmployeeTrendChart(raw) {
     .toLowerCase();
   const section = document.getElementById("employee-trend-section");
   const metric = document.getElementById("metric-select").value;
+  const showNField = document.querySelector(".show-n"); // ← grab the “Show Top/Bottom N” fieldset
 
   // Hide if no employee selected
   if (!term) {
     section.style.display = "none";
     document.querySelector("#metricsChart").parentElement.style.display =
       "block";
+    if (showNField) showNField.style.display = "flex";
     return;
   }
 
@@ -504,6 +506,7 @@ function updateEmployeeTrendChart(raw) {
   // Update chart data
   section.style.display = "block";
   document.querySelector("#metricsChart").parentElement.style.display = "none";
+  if (showNField) showNField.style.display = "none";
   employeeTrendChart.data.labels = keys;
   employeeTrendChart.data.datasets[0].data = piecesData;
   employeeTrendChart.data.datasets[1].data = skuData;
