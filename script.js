@@ -337,6 +337,17 @@ function updateEmployeeTrendChart(raw) {
 
     // Timeframe filter
     const tf = document.getElementById('timeframe-select').value;
+    const toggle = document.getElementById('trend-toggle');
+    const toggleLabel = toggle.closest('.toggle-wrapper');
+
+    if (tf === 'week' || tf === 'month') {
+      toggle.disabled = true;
+      toggle.checked = false; // fallback to daily view
+      toggleLabel.classList.add('disabled');
+    } else {
+      toggle.disabled = false;
+      toggleLabel.classList.remove('disabled');
+    }
     if (tf !== 'all') {
       const cutoff = new Date();
       if (tf === 'week')  cutoff.setDate(cutoff.getDate() - 7);
@@ -358,25 +369,35 @@ function updateEmployeeTrendChart(raw) {
   }
 
   // Group by date and compute daily averages
-  const byDate = {};
+  const showMonthly = document.getElementById('trend-toggle').checked;
+  const byGroup = {};
+
   filtered.forEach(i => {
-    const day = i.DateOfInv.slice(0,10); // "YYYY-MM-DD"
-    if (!byDate[day]) byDate[day] = { p:0, s:0, d:0, c:0 };
-    byDate[day].p += i.PiecesPerHr  || 0;
-    byDate[day].s += i.SkusPerHr    || 0;
-    byDate[day].d += i.DollarPerHr  || 0;
-    byDate[day].c++;
+    let key;
+    if (showMonthly) {
+      const date = new Date(i.DateOfInv);
+      key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`; // YYYY-MM
+    } else {
+      key = i.DateOfInv.slice(0,10); // YYYY-MM-DD
+    }
+
+    if (!byGroup[key]) byGroup[key] = { p:0, s:0, d:0, c:0 };
+    byGroup[key].p += i.PiecesPerHr  || 0;
+    byGroup[key].s += i.SkusPerHr    || 0;
+    byGroup[key].d += i.DollarPerHr  || 0;
+    byGroup[key].c++;
   });
 
-  const dates       = Object.keys(byDate).sort();
-  const piecesData  = dates.map(d => +(byDate[d].p / byDate[d].c).toFixed(2));
-  const skuData     = dates.map(d => +(byDate[d].s / byDate[d].c).toFixed(2));
-  const dollarsData = dates.map(d => +(byDate[d].d / byDate[d].c).toFixed(2));
+  const keys        = Object.keys(byGroup).sort();
+  const piecesData  = keys.map(k => +(byGroup[k].p / byGroup[k].c).toFixed(2));
+  const skuData     = keys.map(k => +(byGroup[k].s / byGroup[k].c).toFixed(2));
+  const dollarsData = keys.map(k => +(byGroup[k].d / byGroup[k].c).toFixed(2));
+
 
   // Update chart data
   section.style.display = 'block';
   document.querySelector('#metricsChart').parentElement.style.display = 'none';
-  employeeTrendChart.data.labels            = dates;
+  employeeTrendChart.data.labels = keys;
   employeeTrendChart.data.datasets[0].data  = piecesData;
   employeeTrendChart.data.datasets[1].data  = skuData;
   employeeTrendChart.data.datasets[2].data  = dollarsData;
@@ -392,6 +413,7 @@ function updateEmployeeTrendChart(raw) {
     text: `${document.getElementById('employee-search').value} – Trend`
   };
 
+  employeeTrendChart.options.scales.x.title.text = showMonthly ? 'Month' : 'Date';
   employeeTrendChart.update();
 }
 
@@ -581,6 +603,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (document.getElementById('date-filter').value) {
     document.getElementById('timeframe-select').value = 'all';
   }
+});
+
+document.getElementById('trend-toggle').addEventListener('change', () => {
+  updateEmployeeTrendChart(rawData);
 });
 
 
