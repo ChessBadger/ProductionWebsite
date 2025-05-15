@@ -255,6 +255,38 @@ body {
   #employee-trend-section {
     height: 300px;
   }
+
+  .show-n {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  /* Make the toggle row a 3‑col grid: “Top” • slider • “Bottom” */
+  .show-n .toggle-wrapper {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    align-items: center;
+    column-gap: 0.5rem;
+    justify-content: center;
+  }
+
+  /* Fix the switch to a reasonable touch size */
+  .show-n .toggle-wrapper .switch {
+    width: 4rem;
+    height: 1.5rem;
+  }
+  .show-n .toggle-wrapper .switch .slider {
+    border-radius: 1rem;
+  }
+
+  /* Center & cap the width of the count input */
+  .show-n input#count {
+    width: 5ch;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
 }
 
 .chart-container {
@@ -355,4 +387,10 @@ input:checked + .slider:before {
 }
 .show-n label {
   white-space: nowrap;
+}
+
+/* only targets our count box inside the “Show” group */
+.show-n input#count {
+  width: 7ch; /* ~ space for 3 digits plus a little padding */
+  min-width: auto; /* override any browser default */
 }
