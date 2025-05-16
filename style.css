@@ -257,7 +257,7 @@ body {
   }
 
   .show-n {
-    display: flex;
+    display: inline-flex;
     flex-direction: column;
     gap: 0.5rem;
     padding: 0.75rem;

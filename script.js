@@ -247,6 +247,7 @@ function initChart() {
 
 // 6. Update main chart
 function updateChart(rows) {
+  if (!(chart && chart.data)) return;
   const dataRows = rows.slice(1); // drop group average
   const metric = document.getElementById("metric-select").value;
   const count = Math.max(
@@ -818,6 +819,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 function setupAutoClear() {
   document.querySelectorAll("input").forEach((input) => {
+    if (input.id === "count") return;
     if (typeof input.select === "function") {
       input.addEventListener("focus", () => {
         const wasNotEmpty = input.value !== "";
@@ -839,24 +841,6 @@ function setupAutoClear() {
     }
   });
 }
-
-// 2) Inside your existing DOMContentLoaded handler, after you do all your
-//    init*() calls but _before_ your initial updateView(rawData)
-document.addEventListener("DOMContentLoaded", async () => {
-  rawData = await loadData();
-
-  initStoreDatalist(rawData);
-  initEmployeeDatalist(rawData);
-  initAccountDatalist(rawData);
-  // … any other setup you already have …
-
-  // <— add this line:
-  setupAutoClear();
-  initChart();
-
-  // finally, render your dashboard
-  updateView(rawData);
-});
 
 /**
  * Completely replaces a datalist’s options
