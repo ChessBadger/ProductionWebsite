@@ -811,6 +811,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       : "Show All Averages";
   });
 
+  initChart();
   // Initial render
   updateView(rawData);
 });
@@ -851,6 +852,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // <— add this line:
   setupAutoClear();
+  initChart();
 
   // finally, render your dashboard
   updateView(rawData);
