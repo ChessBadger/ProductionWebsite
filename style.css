@@ -398,3 +398,10 @@ input:checked + .slider:before {
   width: 7ch; /* ~ space for 3 digits plus a little padding */
   min-width: auto; /* override any browser default */
 }
+
+/* hide arrows on just the #count spinner */
+#count::-webkit-outer-spin-button,
+#count::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

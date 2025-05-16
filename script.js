@@ -765,6 +765,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   initEmployeeDatalist(rawData);
   initAccountDatalist(rawData);
 
+  const showGroup = document.querySelector(".show-n");
+  const countInput = document.getElementById("count");
+
+  showGroup.addEventListener("mousedown", (e) => {
+    // if they clicked the count box itself, or clicked in the toggle wrapper, let it go
+    if (e.target === countInput || e.target.closest(".toggle-wrapper")) {
+      return;
+    }
+    // otherwise prevent the default mousedown — this stops focus on the input
+    e.preventDefault();
+  });
+
   document.getElementById("date-filter").addEventListener("change", () => {
     if (document.getElementById("date-filter").value) {
       document.getElementById("timeframe-select").value = "all";
