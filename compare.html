@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Compare Accounts</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Compare Accounts</h1>
+      <nav>
+        <a href="index.html">← Back to Dashboard</a>
+      </nav>
+    </header>
+    <main>
+      <section class="controls">
+        <label>
+          Account A:
+          <input
+            list="account-list"
+            id="accountA"
+            placeholder="Select account…"
+          />
+        </label>
+        <label>
+          Account B:
+          <input
+            list="account-list"
+            id="accountB"
+            placeholder="Select account…"
+          />
+        </label>
+        <label>
+          Metric:
+          <select id="compare-metric">
+            <option value="all" selected>All</option>
+            <option value="pieces">Pieces/hr</option>
+            <option value="skus">SKU/hr</option>
+            <option value="dollars">$/hr</option>
+          </select>
+        </label>
+        <button id="compare-btn">Compare</button>
+        <datalist id="account-list"></datalist>
+      </section>
+
+      <section class="chart-container">
+        <canvas id="compareChart"></canvas>
+      </section>
+
+      <section class="table-container">
+        <h2>Account A vs Account B Averages</h2>
+        <table id="compareTable">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th id="labelA">Account A</th>
+              <th id="labelB">Account B</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </section>
+    </main>
+    <script src="compare.js"></script>
+  </body>
+</html>
