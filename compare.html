@@ -41,7 +41,16 @@
             <option value="dollars">$/hr</option>
           </select>
         </label>
-        <button id="compare-btn">Compare</button>
+        <label>
+          Timeframe
+          <select id="timeframe-select">
+            <option value="week">Last Week</option>
+            <option value="month">Last Month</option>
+            <option value="6month">Last 6 Months</option>
+            <option value="year" selected>Last 12 Months</option>
+            <option value="all">All Time</option>
+          </select>
+        </label>
         <datalist id="account-list"></datalist>
       </section>
 
@@ -62,6 +71,34 @@
           <tbody>
             <!-- Populated dynamically -->
           </tbody>
+        </table>
+      </section>
+      <section class="employee-compare-section">
+        <h2>Employee Averages by Account</h2>
+        <table id="employeeCompareTable">
+          <thead>
+            <tr>
+              <th class="sortable">Employee</th>
+
+              <th class="sortable">
+                Pieces/hr (<span id="labelA-pieces">A</span>)
+              </th>
+              <th class="sortable">
+                Pieces/hr (<span id="labelB-pieces">B</span>)
+              </th>
+
+              <th class="sortable">SKU/hr (<span id="labelA-skus">A</span>)</th>
+              <th class="sortable">SKU/hr (<span id="labelB-skus">B</span>)</th>
+
+              <th class="sortable">
+                $/hr (<span id="labelA-dollars">A</span>)
+              </th>
+              <th class="sortable">
+                $/hr (<span id="labelB-dollars">B</span>)
+              </th>
+            </tr>
+          </thead>
+          <tbody></tbody>
         </table>
       </section>
     </main>
