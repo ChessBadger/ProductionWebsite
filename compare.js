@@ -213,37 +213,29 @@ function initComparePage(data) {
 
   // shared compare routine
   function doCompare() {
-    // 1. Raw text from the two dropdowns
+    // 1. Raw account inputs
     const rawA = document.getElementById("accountA").value.trim();
     const rawB = document.getElementById("accountB").value.trim();
-
-    // 2. Friendly display labels
     const displayA = getDisplayName(rawA);
     const displayB = getDisplayName(rawB);
-
-    // 3. Normalized keys for grouping logic
     const normA = normalizeAccountKey(rawA);
     const normB = normalizeAccountKey(rawB);
 
-    // 4. Employee‐search term, metric & timeframe
-    const empTerm = document
-      .getElementById("compare-employee-search")
-      .value.trim()
-      .toLowerCase();
+    // 2. Employee search, metric & timeframe
     const rawEmp = document
       .getElementById("compare-employee-search")
       .value.trim();
-
+    const empTerm = rawEmp.toLowerCase();
     const metric = document.getElementById("compare-metric").value;
     const tf = document.getElementById("timeframe-select").value;
 
-    // 5. Show/hide employee‐compare section based on whether an employee filter is active
+    // 3. Show/hide the employee section
     const empSection = document.querySelector(".employee-compare-section");
     if (empSection) {
       empSection.style.display = empTerm ? "none" : "block";
     }
 
-    // 6. Nothing to do if either input is empty or they picked the same group
+    // 4. Bail out if empty or same group
     if (!rawA || !rawB || normA === normB) return;
 
     // --- Account A data prep ---
@@ -257,7 +249,6 @@ function initComparePage(data) {
       );
     }
     const perEmpA = computeAverages(rowsA);
-    const avgA = computeGroupAvg(perEmpA);
 
     // --- Account B data prep ---
     let rowsB = rawData.filter(
@@ -270,49 +261,54 @@ function initComparePage(data) {
       );
     }
     const perEmpB = computeAverages(rowsB);
-    const avgB = computeGroupAvg(perEmpB);
 
-    // --- Update top‑level comparison labels & visuals ---
+    // --- Filter out employees with no data in each account ---
+    const validEmpA = perEmpA.filter(
+      (e) => (e.pieces || 0) > 0 || (e.skus || 0) > 0 || (e.dollars || 0) > 0
+    );
+    const validEmpB = perEmpB.filter(
+      (e) => (e.pieces || 0) > 0 || (e.skus || 0) > 0 || (e.dollars || 0) > 0
+    );
+
+    // --- Compute group averages only over employees with data ---
+    const avgA = computeGroupAvg(validEmpA);
+    const avgB = computeGroupAvg(validEmpB);
+
+    // --- Update top-level labels & visuals ---
     document.getElementById("labelA").textContent = displayA;
     document.getElementById("labelB").textContent = displayB;
+    updateCompareChart(avgA, avgB, metric);
+    updateCompareTable(avgA, avgB);
 
+    // --- Speed comparison banner ---
     const speedEl = document.getElementById("speedComparison");
     const speedA = avgA.pieces;
     const speedB = avgB.pieces;
     if (
-      !speedEl ||
-      typeof speedA !== "number" ||
-      typeof speedB !== "number" ||
-      speedB <= 0
+      speedEl &&
+      typeof speedA === "number" &&
+      typeof speedB === "number" &&
+      speedB > 0
     ) {
+      const ratio = speedA / speedB;
+      const pct = ((ratio - 1) * 100).toFixed(1);
+      const verb = ratio >= 1 ? "faster" : "slower";
+
+      speedEl.classList.remove("faster", "slower");
+      speedEl.classList.add(verb);
+      speedEl.textContent = rawEmp
+        ? `${rawEmp} is on average ${Math.abs(
+            pct
+          )}% ${verb} in pieces/hr between ${displayA} and ${displayB}.`
+        : `${displayA} employees are on average ${Math.abs(
+            pct
+          )}% ${verb} than ${displayB} employees in pieces/hr.`;
+      speedEl.style.display = "block";
+    } else if (speedEl) {
       speedEl.style.display = "none";
-      return;
     }
 
-    // prep
-    const ratio = speedA / speedB;
-    const pct = ((ratio - 1) * 100).toFixed(1);
-    const absPct = Math.abs(pct);
-    const verb = ratio >= 1 ? "faster" : "slower";
-
-    // clear old classes & show
-    speedEl.classList.remove("faster", "slower");
-    speedEl.classList.add(verb);
-    speedEl.style.display = "block";
-
-    // pick your subject line:
-    if (rawEmp) {
-      // singular & name-based
-      speedEl.textContent = `${rawEmp} is on average ${absPct}% ${verb} in pieces/hr between ${displayA} and ${displayB}.`;
-    } else {
-      // default account‐employees
-      speedEl.textContent = `${displayA} employees are on average ${absPct}% ${verb} than ${displayB} employees in pieces/hr.`;
-    }
-
-    updateCompareChart(avgA, avgB, metric);
-    updateCompareTable(avgA, avgB);
-
-    // --- Update per‑employee breakdown ---
+    // --- Per-employee breakdown ---
     updateEmployeeCompareHeader();
     updateEmployeeCompareTable(perEmpA, perEmpB);
   }
