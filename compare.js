@@ -154,9 +154,6 @@ function initComparePage(data) {
       empList.appendChild(opt);
     });
 
-  // default timeframe
-  document.getElementById("timeframe-select").value = "year";
-
   // shared compare routine
   function doCompare() {
     const a = document.getElementById("accountA").value;
@@ -363,6 +360,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   initComparePage(json.EmployeeProductionExportLashaun);
   setupAutoClear();
   setupEmployeeCompareSorting();
+
+  document.getElementById("refresh-btn")?.addEventListener("click", () => {
+    window.location.reload();
+  });
 });
 
 /**

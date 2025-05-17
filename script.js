@@ -761,6 +761,10 @@ const debouncedUpdate = debounce(updateView, 300);
 document.addEventListener("DOMContentLoaded", async () => {
   rawData = await loadData();
 
+  document.getElementById("refresh-btn")?.addEventListener("click", () => {
+    window.location.reload();
+  });
+
   initStoreDatalist(rawData);
   initEmployeeDatalist(rawData);
   initAccountDatalist(rawData);
