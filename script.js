@@ -46,7 +46,7 @@ const ACCOUNT_GROUPS = {
   //Single C-Store
   "single c-stores": [
     "single c-stores",
-    "*single c-Stores $-check",
+    "*single c-stores $-check",
     "*single c-stores $ cash",
   ],
 };
@@ -82,7 +82,7 @@ const ACCOUNT_DISPLAY_NAME = {
   "fuel on": "FUEL ON",
 
   "single c-stores": "SINGLE C-STORES",
-  "*single c-Stores $-check": "SINGLE C-STORES",
+  "*single c-stores $-check": "SINGLE C-STORES",
   "*single c-stores $ cash": "SINGLE C-STORES",
 };
 

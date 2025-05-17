@@ -36,7 +36,7 @@ const ACCOUNT_GROUPS = {
   //Single C-Store
   "single c-stores": [
     "single c-stores",
-    "*single c-Stores $-check",
+    "*single c-stores $-check",
     "*single c-stores $ cash",
   ],
 };
@@ -52,6 +52,26 @@ const ACCOUNT_KEY_MAP = Object.entries(ACCOUNT_GROUPS).reduce(
   },
   {}
 );
+
+// 1a. Display-name mapping (all keys lower-cased)
+const ACCOUNT_DISPLAY_NAME = Object.entries(ACCOUNT_GROUPS).reduce(
+  (map, [canonical, aliases]) => {
+    // Use the canonical group upper-cased as the display name
+    const display = canonical.toUpperCase();
+    // Map the canonical key
+    map[canonical] = display;
+    // Map each alias
+    aliases.forEach((a) => (map[a] = display));
+    return map;
+  },
+  {}
+);
+
+// Helper: given the raw input text, return the nice display name (or fallback to raw)
+function getDisplayName(raw) {
+  const key = normalizeAccountKey(raw || "");
+  return ACCOUNT_DISPLAY_NAME[key] || raw;
+}
 
 // helper to normalize any name to its group key
 function normalizeAccountKey(name) {
@@ -193,13 +213,19 @@ function initComparePage(data) {
 
   // shared compare routine
   function doCompare() {
-    // raw text from the two dropdowns
+    // 1. Raw text from the two dropdowns
     const rawA = document.getElementById("accountA").value.trim();
     const rawB = document.getElementById("accountB").value.trim();
-    // normalized keys
+
+    // 2. Friendly display labels
+    const displayA = getDisplayName(rawA);
+    const displayB = getDisplayName(rawB);
+
+    // 3. Normalized keys for grouping logic
     const normA = normalizeAccountKey(rawA);
     const normB = normalizeAccountKey(rawB);
 
+    // 4. Employee‐search term, metric & timeframe
     const empTerm = document
       .getElementById("compare-employee-search")
       .value.trim()
@@ -207,16 +233,16 @@ function initComparePage(data) {
     const metric = document.getElementById("compare-metric").value;
     const tf = document.getElementById("timeframe-select").value;
 
-    // hide/show the employee‐compare section
+    // 5. Show/hide employee‐compare section based on whether an employee filter is active
     const empSection = document.querySelector(".employee-compare-section");
     if (empSection) {
       empSection.style.display = empTerm ? "none" : "block";
     }
 
-    // nothing to do if either empty or they picked the same group
+    // 6. Nothing to do if either input is empty or they picked the same group
     if (!rawA || !rawB || normA === normB) return;
 
-    // --- Account A ---
+    // --- Account A data prep ---
     let rowsA = rawData.filter(
       (r) => normalizeAccountKey(r.AccountName || "") === normA
     );
@@ -229,7 +255,7 @@ function initComparePage(data) {
     const perEmpA = computeAverages(rowsA);
     const avgA = computeGroupAvg(perEmpA);
 
-    // --- Account B ---
+    // --- Account B data prep ---
     let rowsB = rawData.filter(
       (r) => normalizeAccountKey(r.AccountName || "") === normB
     );
@@ -242,14 +268,14 @@ function initComparePage(data) {
     const perEmpB = computeAverages(rowsB);
     const avgB = computeGroupAvg(perEmpB);
 
-    // update the top‐level comparison
-    document.getElementById("labelA").textContent = rawA;
-    document.getElementById("labelB").textContent = rawB;
+    // --- Update top‑level comparison labels & visuals ---
+    document.getElementById("labelA").textContent = displayA;
+    document.getElementById("labelB").textContent = displayB;
     updateCompareChart(avgA, avgB, metric);
     updateCompareTable(avgA, avgB);
 
-    // update the per‐employee breakdown
-    updateEmployeeCompareHeader();
+    // --- Update per‑employee breakdown ---
+    updateEmployeeCompareHeader(); // will now pick up the new labels
     updateEmployeeCompareTable(perEmpA, perEmpB);
   }
 
