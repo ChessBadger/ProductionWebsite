@@ -12,12 +12,13 @@ const rowsPerPage = 50;
 
 // Account alias groups
 const ACCOUNT_GROUPS = {
-  "mariano's": ["mariano's", "kroger"],
-  kroger: ["mariano's", "kroger"],
+  //prettier-ignore
+  "kroger": ["kroger", "mariano's"],
 
   // PIGGLY WIGGLY aliases
-  "PIGGLY WIGGLY": [
-    "PIGGLY WIGGLY - franchise",
+  "piggly wiggly": [
+    "piggly wiggly",
+    "piggly wiggly - franchise",
     "pigs coporate",
     "pigs dave s",
     "pigs fox brothers",
@@ -33,18 +34,23 @@ const ACCOUNT_GROUPS = {
   ],
 
   // ASCENSION
-  "ascension rx - per k": ["ascension rx - per k", "ascension rx - man hr"],
-  "ascension rx - man hr": ["ascension rx - per k", "ascension rx - man hr"],
+  "ascension rx": [
+    "ascension rx",
+    "ascension rx - per k",
+    "ascension rx - man hr",
+  ],
 
   //SCHIERL
-  "FUEL ON": ["relaince fuel, llc", "reliance fuel, llc", "fuel on", "schierl"],
+  "fuel on": ["fuel on", "relaince fuel, llc", "reliance fuel, llc", "schierl"],
 };
 
 // prettier-ignore
 const ACCOUNT_DISPLAY_NAME = {
   "mariano's": "KROGER",
+  //prettier-ignore
   "kroger": "KROGER",
 
+  "piggly wiggly": "PIGGLY WIGGLY",
   "piggly wiggly - franchise": "PIGGLY WIGGLY",
   "pigs coporate": "PIGGLY WIGGLY",
   "pigs fox brothers": "PIGGLY WIGGLY",
@@ -61,7 +67,8 @@ const ACCOUNT_DISPLAY_NAME = {
 
   "ascension rx - man hr": "ASCENSION RX",
   "ascension rx - per k": "ASCENSION RX",
-
+  
+  //prettier-ignore
   "schierl": "FUEL ON",
   "relaince fuel, llc": "FUEL ON",
   "reliance fuel, llc": "FUEL ON",
@@ -434,12 +441,20 @@ function updateEmployeeTrendChart(raw) {
       return false;
 
     // Account filter
-    const acctTerm = document
+    // get the raw string the user typed, lowercase
+    const rawAccTerm = document
       .getElementById("account-search")
-      .value.toLowerCase();
-    const acctName = (i.AccountName || "").toLowerCase();
-    const acctGroup = ACCOUNT_GROUPS[acctTerm] || [acctTerm];
-    if (acctTerm && !acctGroup.includes(acctName)) return false;
+      .value.trim()
+      .toLowerCase();
+
+    // normalize it to your canonical key (or itself if unknown)
+    const inputKey = rawAccTerm ? normalizeAccountKey(rawAccTerm) : "";
+
+    // normalize each row’s name the same way
+    const itemKey = normalizeAccountKey(i.AccountName || "");
+
+    // now compare apples to apples
+    if (inputKey && inputKey !== itemKey) return false;
 
     // Timeframe filter
     const tf = document.getElementById("timeframe-select").value;
@@ -666,12 +681,20 @@ function updateView(raw) {
       return false;
     const name = `${i.FirstName} ${i.LastName}`.toLowerCase();
     if (empTerm && !name.includes(empTerm)) return false;
-    const acctTerm = document
+    // get the raw string the user typed, lowercase
+    const rawAccTerm = document
       .getElementById("account-search")
-      .value.toLowerCase();
-    const acctName = (i.AccountName || "").toLowerCase();
-    const acctGroup = ACCOUNT_GROUPS[acctTerm] || [acctTerm];
-    if (acctTerm && !acctGroup.includes(acctName)) return false;
+      .value.trim()
+      .toLowerCase();
+
+    // normalize it to your canonical key (or itself if unknown)
+    const inputKey = rawAccTerm ? normalizeAccountKey(rawAccTerm) : "";
+
+    // normalize each row’s name the same way
+    const itemKey = normalizeAccountKey(i.AccountName || "");
+
+    // now compare apples to apples
+    if (inputKey && inputKey !== itemKey) return false;
 
     if (exactDate) {
       const invDate = i.DateOfInv.slice(0, 10); // 'YYYY-MM-DD'
@@ -1040,3 +1063,13 @@ function updateLegend() {
 dirCheckbox.addEventListener("change", updateLegend);
 countInput.addEventListener("input", updateLegend);
 updateLegend();
+
+function normalizeAccountKey(name) {
+  const lower = name.trim().toLowerCase();
+  for (let [key, aliases] of Object.entries(ACCOUNT_GROUPS)) {
+    if (key === lower || aliases.includes(lower)) {
+      return key;
+    }
+  }
+  return lower;
+}

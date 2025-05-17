@@ -2,10 +2,12 @@
 
 // 0. Alias groups (all keys lower‑cased)
 const ACCOUNT_GROUPS = {
-  "mariano's": ["mariano's", "kroger"],
-  kroger: ["mariano's", "kroger"],
+  //prettier-ignore
+  "kroger": ["kroger", "mariano's"],
 
+  // PIGGLY WIGGLY aliases
   "piggly wiggly": [
+    "piggly wiggly",
     "piggly wiggly - franchise",
     "pigs coporate",
     "pigs dave s",
@@ -21,11 +23,35 @@ const ACCOUNT_GROUPS = {
     "pigs tietz",
   ],
 
-  "ascension rx - per k": ["ascension rx - per k", "ascension rx - man hr"],
-  "ascension rx - man hr": ["ascension rx - per k", "ascension rx - man hr"],
+  // ASCENSION
+  "ascension rx": [
+    "ascension rx",
+    "ascension rx - per k",
+    "ascension rx - man hr",
+  ],
 
-  "fuel on": ["relaince fuel, llc", "reliance fuel, llc", "fuel on", "schierl"],
+  //SCHIERL
+  "fuel on": ["fuel on", "relaince fuel, llc", "reliance fuel, llc", "schierl"],
 };
+
+// build a quick map alias→canonical
+const ACCOUNT_KEY_MAP = Object.entries(ACCOUNT_GROUPS).reduce(
+  (map, [canonical, aliases]) => {
+    map[canonical] = canonical;
+    for (let a of aliases) {
+      map[a] = canonical;
+    }
+    return map;
+  },
+  {}
+);
+
+// helper to normalize any name to its group key
+function normalizeAccountKey(name) {
+  return (
+    ACCOUNT_KEY_MAP[name.trim().toLowerCase()] || name.trim().toLowerCase()
+  );
+}
 
 // 1. Raw data container
 let rawData = [];
@@ -116,14 +142,18 @@ function computeGroupAvg(rows) {
 
 // 5. Compute account‐group average, *with* timeframe
 function computeAccountGroupAvg(accountName, tf) {
-  const key = accountName.toLowerCase();
-  const groupKeys = ACCOUNT_GROUPS[key] || [key];
-  // 5a) filter by account
-  let rows = rawData.filter((r) =>
-    groupKeys.includes((r.AccountName || "").toLowerCase())
+  // normalize the group key
+  const normKey = normalizeAccountKey(accountName || "");
+
+  // filter rows whose AccountName maps to that key
+  let rows = rawData.filter(
+    (r) => normalizeAccountKey(r.AccountName || "") === normKey
   );
-  // 5b) then by timeframe
+
+  // apply the same timeframe logic
   rows = filterByTimeframe(rows, tf);
+
+  // per‐employee averages, then group‐average
   const perEmp = computeAverages(rows);
   return computeGroupAvg(perEmp);
 }
@@ -156,8 +186,13 @@ function initComparePage(data) {
 
   // shared compare routine
   function doCompare() {
-    const a = document.getElementById("accountA").value;
-    const b = document.getElementById("accountB").value;
+    // raw text from the two dropdowns
+    const rawA = document.getElementById("accountA").value.trim();
+    const rawB = document.getElementById("accountB").value.trim();
+    // normalized keys
+    const normA = normalizeAccountKey(rawA);
+    const normB = normalizeAccountKey(rawB);
+
     const empTerm = document
       .getElementById("compare-employee-search")
       .value.trim()
@@ -165,21 +200,18 @@ function initComparePage(data) {
     const metric = document.getElementById("compare-metric").value;
     const tf = document.getElementById("timeframe-select").value;
 
-    // hide the employee‐compare table when an employee is searched
+    // hide/show the employee‐compare section
     const empSection = document.querySelector(".employee-compare-section");
     if (empSection) {
-      if (empTerm) empSection.style.display = "none";
-      else empSection.style.display = "block";
+      empSection.style.display = empTerm ? "none" : "block";
     }
 
-    if (!a || !b || a === b) return;
+    // nothing to do if either empty or they picked the same group
+    if (!rawA || !rawB || normA === normB) return;
 
     // --- Account A ---
-    const keyA = a.toLowerCase();
-    let rowsA = rawData.filter((r) =>
-      (ACCOUNT_GROUPS[keyA] || [keyA]).includes(
-        (r.AccountName || "").toLowerCase()
-      )
+    let rowsA = rawData.filter(
+      (r) => normalizeAccountKey(r.AccountName || "") === normA
     );
     rowsA = filterByTimeframe(rowsA, tf);
     if (empTerm) {
@@ -191,11 +223,8 @@ function initComparePage(data) {
     const avgA = computeGroupAvg(perEmpA);
 
     // --- Account B ---
-    const keyB = b.toLowerCase();
-    let rowsB = rawData.filter((r) =>
-      (ACCOUNT_GROUPS[keyB] || [keyB]).includes(
-        (r.AccountName || "").toLowerCase()
-      )
+    let rowsB = rawData.filter(
+      (r) => normalizeAccountKey(r.AccountName || "") === normB
     );
     rowsB = filterByTimeframe(rowsB, tf);
     if (empTerm) {
@@ -206,13 +235,13 @@ function initComparePage(data) {
     const perEmpB = computeAverages(rowsB);
     const avgB = computeGroupAvg(perEmpB);
 
-    // update account‐level
-    document.getElementById("labelA").textContent = a;
-    document.getElementById("labelB").textContent = b;
+    // update the top‐level comparison
+    document.getElementById("labelA").textContent = rawA;
+    document.getElementById("labelB").textContent = rawB;
     updateCompareChart(avgA, avgB, metric);
     updateCompareTable(avgA, avgB);
 
-    // update employee‐level
+    // update the per‐employee breakdown
     updateEmployeeCompareHeader();
     updateEmployeeCompareTable(perEmpA, perEmpB);
   }
