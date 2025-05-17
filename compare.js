@@ -32,6 +32,13 @@ const ACCOUNT_GROUPS = {
 
   //SCHIERL
   "fuel on": ["fuel on", "relaince fuel, llc", "reliance fuel, llc", "schierl"],
+
+  //Single C-Store
+  "single c-stores": [
+    "single c-stores",
+    "*single c-Stores $-check",
+    "*single c-stores $ cash",
+  ],
 };
 
 // build a quick map alias→canonical

@@ -42,6 +42,13 @@ const ACCOUNT_GROUPS = {
 
   //SCHIERL
   "fuel on": ["fuel on", "relaince fuel, llc", "reliance fuel, llc", "schierl"],
+
+  //Single C-Store
+  "single c-stores": [
+    "single c-stores",
+    "*single c-Stores $-check",
+    "*single c-stores $ cash",
+  ],
 };
 
 // prettier-ignore
@@ -67,12 +74,16 @@ const ACCOUNT_DISPLAY_NAME = {
 
   "ascension rx - man hr": "ASCENSION RX",
   "ascension rx - per k": "ASCENSION RX",
-  
+
   //prettier-ignore
   "schierl": "FUEL ON",
   "relaince fuel, llc": "FUEL ON",
   "reliance fuel, llc": "FUEL ON",
   "fuel on": "FUEL ON",
+
+  "single c-stores": "SINGLE C-STORES",
+  "*single c-Stores $-check": "SINGLE C-STORES",
+  "*single c-stores $ cash": "SINGLE C-STORES",
 };
 
 // Debounce helper
