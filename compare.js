@@ -306,12 +306,19 @@ function updateCompareTable(a, b) {
   tbody.innerHTML = "";
   ["pieces", "skus", "dollars", "avg_delta", "gap5", "gap10", "gap15"].forEach(
     (key) => {
+      const label =
+        key === "avg_delta"
+          ? "AVG DELTA (s)"
+          : key.replace(/_/g, " ").toUpperCase();
+      const format = (v) => (key === "avg_delta" ? v * 60 : v).toFixed(2);
+
       const tr = document.createElement("tr");
       tr.innerHTML = `
-          <td>${key.replace(/_/g, " ").toUpperCase()}</td>
-          <td>${a[key].toFixed(2)}</td>
-          <td>${b[key].toFixed(2)}</td>
-        `;
+      <td>${label}</td>
+      <td>${format(a[key])}</td>
+      <td>${format(b[key])}</td>
+    `;
+
       tbody.appendChild(tr);
     }
   );

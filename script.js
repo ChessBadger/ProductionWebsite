@@ -303,7 +303,7 @@ function renderAvgTable(rows) {
       <td data-label="Pieces/hr">${r.pieces.toFixed(2)}</td>
       <td data-label="$/hr">${r.dollars.toFixed(2)}</td>
       <td data-label="SKU/hr">${r.skus.toFixed(2)}</td>
-      <td data-label="Avg Δ">${r.avg_delta.toFixed(2)}</td>
+      <td data-label="Avg Δ (s)">${(r.avg_delta * 60).toFixed(2)}</td>
       <td data-label="Gap5">${r.gap5.toFixed(2)}</td>
       <td data-label="Gap10">${r.gap10.toFixed(2)}</td>
       <td data-label="Gap15">${r.gap15.toFixed(2)}</td>
@@ -610,7 +610,7 @@ function renderTable(data) {
       <td data-label="Pieces/hr">${(item.PiecesPerHr || 0).toFixed(2)}</td>
       <td data-label="$/hr">${(item.DollarPerHr || 0).toFixed(2)}</td>
       <td data-label="SKU/hr">${(item.SkusPerHr || 0).toFixed(2)}</td>
-      <td data-label="Avg Δ">${(item.AVG_DELTA || 0).toFixed(2)}</td>
+      <td data-label="Avg Δ (s)">${((item.AVG_DELTA || 0) * 60).toFixed(2)}</td>
       <td data-label="Gap5">${item.GAP5_COUNT || 0}</td>
       <td data-label="Gap10">${item.GAP10_COUNT || 0}</td>
       <td data-label="Gap15">${item.GAP15_COUNT || 0}</td>
