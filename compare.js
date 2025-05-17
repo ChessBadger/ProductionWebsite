@@ -423,24 +423,27 @@ function updateEmployeeCompareTable(perA, perB) {
   const tbody = document.querySelector("#employeeCompareTable tbody");
   tbody.innerHTML = "";
 
-  // union of employee names
-  const names = Array.from(
-    new Set([...perA, ...perB].map((r) => r.name))
-  ).sort();
+  // 1. Build arrays of names for each account
+  const namesA = perA.map((r) => r.name);
+  const namesB = perB.map((r) => r.name);
 
+  // 2. Compute intersection: only names present in both accounts
+  const names = namesA.filter((name) => namesB.includes(name)).sort();
+
+  // 3. For each common employee, append a row
   names.forEach((name) => {
-    const aRow = perA.find((r) => r.name === name) || {};
-    const bRow = perB.find((r) => r.name === name) || {};
+    const aRow = perA.find((r) => r.name === name);
+    const bRow = perB.find((r) => r.name === name);
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
         <td>${name}</td>
-        <td>${(aRow.pieces || 0).toFixed(2)}</td>
-        <td>${(bRow.pieces || 0).toFixed(2)}</td>
-        <td>${(aRow.skus || 0).toFixed(2)}</td>
-        <td>${(bRow.skus || 0).toFixed(2)}</td>
-        <td>${(aRow.dollars || 0).toFixed(2)}</td>
-        <td>${(bRow.dollars || 0).toFixed(2)}</td>
+        <td>${aRow.pieces.toFixed(2)}</td>
+        <td>${bRow.pieces.toFixed(2)}</td>
+        <td>${aRow.skus.toFixed(2)}</td>
+        <td>${bRow.skus.toFixed(2)}</td>
+        <td>${aRow.dollars.toFixed(2)}</td>
+        <td>${bRow.dollars.toFixed(2)}</td>
       `;
     tbody.appendChild(tr);
   });
