@@ -130,10 +130,9 @@ function computeAccountGroupAvg(accountName, tf) {
 
 // 6. Initialize page controls & events
 function initComparePage(data) {
-  // Store the raw data for use in comparisons
   rawData = data;
 
-  // 1. Populate the account datalist
+  // account list
   const list = document.getElementById("account-list");
   list.innerHTML = "";
   Array.from(new Set(data.map((r) => r.AccountName).filter(Boolean)))
@@ -144,17 +143,41 @@ function initComparePage(data) {
       list.appendChild(opt);
     });
 
-  // 3. The shared compare routine
+  // employee list
+  const empList = document.getElementById("compare-employee-list");
+  empList.innerHTML = "";
+  Array.from(new Set(data.map((r) => `${r.FirstName} ${r.LastName}`)))
+    .sort()
+    .forEach((name) => {
+      const opt = document.createElement("option");
+      opt.value = name;
+      empList.appendChild(opt);
+    });
+
+  // default timeframe
+  document.getElementById("timeframe-select").value = "year";
+
+  // shared compare routine
   function doCompare() {
     const a = document.getElementById("accountA").value;
     const b = document.getElementById("accountB").value;
+    const empTerm = document
+      .getElementById("compare-employee-search")
+      .value.trim()
+      .toLowerCase();
     const metric = document.getElementById("compare-metric").value;
     const tf = document.getElementById("timeframe-select").value;
 
-    // require two different accounts
+    // hide the employee‐compare table when an employee is searched
+    const empSection = document.querySelector(".employee-compare-section");
+    if (empSection) {
+      if (empTerm) empSection.style.display = "none";
+      else empSection.style.display = "block";
+    }
+
     if (!a || !b || a === b) return;
 
-    // --- Filter & compute for Account A ---
+    // --- Account A ---
     const keyA = a.toLowerCase();
     let rowsA = rawData.filter((r) =>
       (ACCOUNT_GROUPS[keyA] || [keyA]).includes(
@@ -162,10 +185,15 @@ function initComparePage(data) {
       )
     );
     rowsA = filterByTimeframe(rowsA, tf);
+    if (empTerm) {
+      rowsA = rowsA.filter((i) =>
+        `${i.FirstName} ${i.LastName}`.toLowerCase().includes(empTerm)
+      );
+    }
     const perEmpA = computeAverages(rowsA);
     const avgA = computeGroupAvg(perEmpA);
 
-    // --- Filter & compute for Account B ---
+    // --- Account B ---
     const keyB = b.toLowerCase();
     let rowsB = rawData.filter((r) =>
       (ACCOUNT_GROUPS[keyB] || [keyB]).includes(
@@ -173,31 +201,40 @@ function initComparePage(data) {
       )
     );
     rowsB = filterByTimeframe(rowsB, tf);
+    if (empTerm) {
+      rowsB = rowsB.filter((i) =>
+        `${i.FirstName} ${i.LastName}`.toLowerCase().includes(empTerm)
+      );
+    }
     const perEmpB = computeAverages(rowsB);
     const avgB = computeGroupAvg(perEmpB);
 
-    // 4. Update the account‐level chart & table
+    // update account‐level
     document.getElementById("labelA").textContent = a;
     document.getElementById("labelB").textContent = b;
     updateCompareChart(avgA, avgB, metric);
     updateCompareTable(avgA, avgB);
 
-    // 5. Update the employee‐level header & table
+    // update employee‐level
     updateEmployeeCompareHeader();
     updateEmployeeCompareTable(perEmpA, perEmpB);
   }
 
-  // 4. Hook up auto‐compare on any control change
-  ["accountA", "accountB", "compare-metric", "timeframe-select"].forEach(
-    (id) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const evt = el.tagName === "SELECT" ? "change" : "input";
-      el.addEventListener(evt, doCompare);
-    }
-  );
+  // auto‑run on any control change
+  [
+    "accountA",
+    "accountB",
+    "compare-employee-search",
+    "compare-metric",
+    "timeframe-select",
+  ].forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const evt = el.tagName === "SELECT" ? "change" : "input";
+    el.addEventListener(evt, doCompare);
+  });
 
-  // 5. Run once to populate with defaults
+  // initial draw
   doCompare();
 }
 
@@ -374,13 +411,14 @@ function updateEmployeeCompareTable(perA, perB) {
 
 // --- auto‑clear inputs on focus (for compare page) ---
 function setupAutoClear() {
-  // only clear the account inputs
-  ["accountA", "accountB"].forEach((id) => {
+  ["accountA", "accountB", "compare-employee-search"].forEach((id) => {
     const input = document.getElementById(id);
     if (!input) return;
     input.addEventListener("focus", () => {
       if (input.value !== "") {
         input.value = "";
+        // force re-run of the compare logic
+        input.dispatchEvent(new Event("input", { bubbles: true }));
       }
     });
   });
