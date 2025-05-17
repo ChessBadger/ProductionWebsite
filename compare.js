@@ -230,6 +230,10 @@ function initComparePage(data) {
       .getElementById("compare-employee-search")
       .value.trim()
       .toLowerCase();
+    const rawEmp = document
+      .getElementById("compare-employee-search")
+      .value.trim();
+
     const metric = document.getElementById("compare-metric").value;
     const tf = document.getElementById("timeframe-select").value;
 
@@ -271,11 +275,45 @@ function initComparePage(data) {
     // --- Update top‑level comparison labels & visuals ---
     document.getElementById("labelA").textContent = displayA;
     document.getElementById("labelB").textContent = displayB;
+
+    const speedEl = document.getElementById("speedComparison");
+    const speedA = avgA.pieces;
+    const speedB = avgB.pieces;
+    if (
+      !speedEl ||
+      typeof speedA !== "number" ||
+      typeof speedB !== "number" ||
+      speedB <= 0
+    ) {
+      speedEl.style.display = "none";
+      return;
+    }
+
+    // prep
+    const ratio = speedA / speedB;
+    const pct = ((ratio - 1) * 100).toFixed(1);
+    const absPct = Math.abs(pct);
+    const verb = ratio >= 1 ? "faster" : "slower";
+
+    // clear old classes & show
+    speedEl.classList.remove("faster", "slower");
+    speedEl.classList.add(verb);
+    speedEl.style.display = "block";
+
+    // pick your subject line:
+    if (rawEmp) {
+      // singular & name-based
+      speedEl.textContent = `${rawEmp} is on average ${absPct}% ${verb} in pieces/hr between ${displayA} and ${displayB}.`;
+    } else {
+      // default account‐employees
+      speedEl.textContent = `${displayA} employees are on average ${absPct}% ${verb} than ${displayB} employees in pieces/hr.`;
+    }
+
     updateCompareChart(avgA, avgB, metric);
     updateCompareTable(avgA, avgB);
 
     // --- Update per‑employee breakdown ---
-    updateEmployeeCompareHeader(); // will now pick up the new labels
+    updateEmployeeCompareHeader();
     updateEmployeeCompareTable(perEmpA, perEmpB);
   }
 

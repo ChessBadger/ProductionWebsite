@@ -405,3 +405,29 @@ input:checked + .slider:before {
   -webkit-appearance: none;
   margin: 0;
 }
+
+/* Speed comparison box */
+.speed-comparison {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 1rem;
+  display: none; /* hidden by default */
+}
+
+/* When account A is faster than B */
+.speed-comparison.faster {
+  background: #e8f5e9; /* light green */
+  color: #2e7d32; /* dark green */
+  border-left: 4px solid #388e3c;
+  display: block; /* un-hide */
+}
+
+/* When account A is slower than B */
+.speed-comparison.slower {
+  background: #ffebee; /* light red */
+  color: #c62828; /* dark red */
+  border-left: 4px solid #d32f2f;
+  display: block; /* un-hide */
+}
