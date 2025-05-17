@@ -144,9 +144,6 @@ function initComparePage(data) {
       list.appendChild(opt);
     });
 
-  // 2. Default the timeframe selector to “Last year”
-  document.getElementById("timeframe-select").value = "year";
-
   // 3. The shared compare routine
   function doCompare() {
     const a = document.getElementById("accountA").value;
