@@ -6,6 +6,20 @@
     <title>Compare Accounts</title>
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase (compat versions for browser use) -->
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyCYuvMZVE9aTX_95nuZrUiv_pFHbZG_5pY",
+        authDomain: "employee-dashboard-aab04.firebaseapp.com",
+        projectId: "employee-dashboard-aab04",
+        storageBucket: "employee-dashboard-aab04.appspot.com",
+        messagingSenderId: "511125736771",
+        appId: "1:511125736771:web:cdb9a3dcadcdd23240b3f6",
+      };
+      firebase.initializeApp(firebaseConfig);
+    </script>
   </head>
   <body>
     <script>
@@ -126,6 +140,27 @@
         </table>
       </section>
     </main>
+    <script>
+      const allowedUsers = [
+        "jswanson@badgerinventory.com",
+        "hkraemer@badgerinventory.com",
+        "jfalck@badgerinventory.com",
+        "spalmer@badgerinventory.com",
+        "nbrock@badgerinventory.com",
+        "lclark@badgerinventory.com",
+      ];
+      firebase.auth().onAuthStateChanged((user) => {
+        if (!user || !allowedUsers.includes(user.email.toLowerCase())) {
+          alert("Unauthorized access. Redirecting...");
+          firebase
+            .auth()
+            .signOut()
+            .then(() => {
+              window.location.href = "login.html";
+            });
+        }
+      });
+    </script>
     <script src="compare.js"></script>
   </body>
 </html>

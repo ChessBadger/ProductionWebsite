@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <title>Employee Production Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase (compat versions for browser use) -->
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyCYuvMZVE9aTX_95nuZrUiv_pFHbZG_5pY",
+        authDomain: "employee-dashboard-aab04.firebaseapp.com",
+        projectId: "employee-dashboard-aab04",
+        storageBucket: "employee-dashboard-aab04.appspot.com",
+        messagingSenderId: "511125736771",
+        appId: "1:511125736771:web:cdb9a3dcadcdd23240b3f6",
+      };
+      firebase.initializeApp(firebaseConfig);
+    </script>
+  </head>
+  <body>
+    <script>
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = "login.html"; // redirect to login
+        }
+      });
+    </script>
+    <header>
+      <h1>Production Dashboard</h1>
+      <nav>
+        <a href="compare.html">Compare Accounts→ </a>
+        <!-- <a href="expected.html">expected Accounts→ </a> -->
+      </nav>
+    </header>
+    <main>
+      <!-- Filters & controls -->
+      <section class="controls">
+        <label>
+          Employee:
+          <input
+            list="employee-list"
+            id="employee-search"
+            placeholder="Type to search…"
+            autocomplete="off"
+          />
+          <datalist id="employee-list"></datalist>
+        </label>
+        <label>
+          Account:
+          <input
+            list="account-list"
+            id="account-search"
+            placeholder="Type to search…"
+            autocomplete="off"
+          />
+          <datalist id="account-list"></datalist>
+        </label>
+        <label>
+          Store:
+          <input
+            list="store-list"
+            id="store-search"
+            placeholder="Type to search…"
+            autocomplete="off"
+          />
+          <datalist id="store-list"></datalist>
+        </label>
+        <label>
+          Metric:
+          <select id="metric-select">
+            <option value="all">All</option>
+            <option value="pieces">Pieces/hr</option>
+            <option value="skus">SKU/hr</option>
+            <option value="dollars">$/hr</option>
+          </select>
+        </label>
+
+        <label>
+          Timeframe
+          <select id="timeframe-select">
+            <option value="week">Last 7 Days</option>
+            <option value="month">Last 30 Days</option>
+            <option value="6month">Last 6 Months</option>
+            <option value="year" selected>Last 12 Months</option>
+            <option value="all">All Time</option>
+          </select>
+        </label>
+
+        <label>
+          Specific Date:
+          <input type="date" id="date-filter" />
+        </label>
+
+        <button type="button" id="refresh-btn">Clear all fields</button>
+      </section>
+
+      <fieldset class="control-group show-n">
+        <legend>Show</legend>
+
+        <!-- <label for="direction">Direction</label> -->
+        <div class="toggle-wrapper">
+          <span>Top</span>
+          <label class="switch">
+            <input type="checkbox" id="direction" />
+            <span class="slider round"></span>
+          </label>
+          <span>Bottom</span>
+        </div>
+        <!-- <label for="count">Count</label> -->
+        <input type="number" id="count" min="1" value="10" />
+      </fieldset>
+      <!-- Chart -->
+      <section class="chart-container">
+        <canvas id="metricsChart"></canvas>
+      </section>
+
+      <section
+        class="chart-container"
+        id="employee-trend-section"
+        style="display: none"
+      >
+        <div class="toggle-wrapper">
+          <span>Per-Store</span>
+          <label class="switch">
+            <input type="checkbox" id="trend-toggle" checked />
+            <span class="slider round"></span>
+          </label>
+          <span>Monthly Avg</span>
+        </div>
+        <canvas id="employeeTrendChart"></canvas>
+      </section>
+
+      <!-- Toggle button for full averages -->
+      <section class="controls">
+        <button id="toggle-avg-btn">Hide All Averages</button>
+      </section>
+
+      <!-- All‐employees averages table (hidden by default) -->
+      <section class="table-container" id="avg-section">
+        <h2>All Employee Averages</h2>
+        <table id="avgTable" class="responsive">
+          <thead>
+            <tr>
+              <th class="sortable" data-key="name">Employee</th>
+              <th class="sortable" data-key="pieces">Pieces/hr</th>
+              <th class="sortable" data-key="dollars">$/hr</th>
+              <th class="sortable" data-key="skus">SKU/hr</th>
+              <th class="sortable" data-key="avg_delta">Avg Delta(s)</th>
+              <th class="sortable" data-key="gap5">5m Gap Avg</th>
+              <th class="sortable" data-key="gap10">10m Gap Avg</th>
+              <th class="sortable" data-key="gap15">15m Gap Avg</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <!-- Raw filtered records table -->
+      <section class="table-container">
+        <h2>All Store Details</h2>
+        <!-- metricsTable -->
+        <table id="metricsTable" class="responsive">
+          <div id="pagination" class="pagination"></div>
+          <thead>
+            <tr>
+              <th class="sortable" data-key="employee">Employee</th>
+              <th class="sortable" data-key="account">Account</th>
+              <th class="sortable" data-key="store">Store</th>
+              <th class="sortable" data-key="date">Inv Date</th>
+              <th class="sortable" data-key="pieces">Pieces/hr</th>
+              <th class="sortable" data-key="dollars">$Dollars/hr</th>
+              <th class="sortable" data-key="skus">SKU/hr</th>
+              <th class="sortable" data-key="avg_delta">Avg Delta(s)</th>
+              <th class="sortable" data-key="gap5_count">5m Gaps</th>
+              <th class="sortable" data-key="gap10_count">10m Gaps</th>
+              <th class="sortable" data-key="gap15_count">15m Gaps</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </main>
+    <script>
+      const allowedUsers = [
+        "jswanson@badgerinventory.com",
+        "hkraemer@badgerinventory.com",
+        "jfalck@badgerinventory.com",
+        "spalmer@badgerinventory.com",
+        "nbrock@badgerinventory.com",
+        "lclark@badgerinventory.com",
+      ];
+      firebase.auth().onAuthStateChanged((user) => {
+        if (!user || !allowedUsers.includes(user.email.toLowerCase())) {
+          alert("Unauthorized access. Redirecting...");
+          firebase
+            .auth()
+            .signOut()
+            .then(() => {
+              window.location.href = "login.html";
+            });
+        }
+      });
+    </script>
+    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1"></script>
+  </body>
+</html>
