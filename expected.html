@@ -6,6 +6,13 @@
     <link rel="stylesheet" href="expected.css" />
   </head>
   <body>
+    <script>
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = "login.html"; // redirect to login
+        }
+      });
+    </script>
     <div class="container">
       <h1>Completion Time Estimator</h1>
 
@@ -61,7 +68,6 @@
         <p id="time-result"></p>
       </div>
     </div>
-
     <script src="expected.js"></script>
   </body>
 </html>

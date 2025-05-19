@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = "login.html"; // redirect to login
+        }
+      });
+    </script>
+    <div id="login-form">
+      <h2>Login</h2>
+      <input type="email" id="email" placeholder="Email" /><br />
+      <input type="password" id="password" placeholder="Password" /><br />
+      <button onclick="login()">Login</button>
+    </div>
+    <div id="content" style="display: none">
+      <!-- Your protected app content here -->
+    </div>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js"></script>
+    <script>
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "firebase/app";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyCYuvMZVE9aTX_95nuZrUiv_pFHbZG_5pY",
+        authDomain: "employee-dashboard-aab04.firebaseapp.com",
+        projectId: "employee-dashboard-aab04",
+        storageBucket: "employee-dashboard-aab04.firebasestorage.app",
+        messagingSenderId: "511125736771",
+        appId: "1:511125736771:web:cdb9a3dcadcdd23240b3f6",
+      };
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+    </script>
+    <script>
+      function login() {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        auth
+          .signInWithEmailAndPassword(email, password)
+          .then(() => {
+            document.getElementById("login-form").style.display = "none";
+            document.getElementById("content").style.display = "block";
+          })
+          .catch((error) => {
+            alert("Login failed: " + error.message);
+          });
+      }
+
+      // Keep user signed in if already logged in
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          document.getElementById("login-form").style.display = "none";
+          document.getElementById("content").style.display = "block";
+        }
+      });
+    </script>
+  </body>
+</html>
