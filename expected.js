@@ -68,7 +68,10 @@ function normalizeAccountKey(name) {
 async function fetchData() {
   const res = await fetch("EmployeeProductionExport.json");
   const json = await res.json();
-  data = json["EmployeeProductionExportLashaun"] || [];
+  data = (json["EmployeeProductionExportLashaun"] || []).map((r) => ({
+    ...r,
+    StoreName: r.StoreName.trim(),
+  }));
   initStoreAutocomplete();
 }
 
@@ -110,7 +113,7 @@ function onStoreSelected(e) {
 
   // grab & keep for "store"‑avg mode:
 
-  const recs = data.filter((r) => r.StoreName === store);
+  const recs = data.filter((r) => r.StoreName.trim() === store);
   currentRecs = recs;
   if (!recs.length) return;
 
