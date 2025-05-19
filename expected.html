@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Expected Completion Time</title>
+    <link rel="stylesheet" href="expected.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Completion Time Estimator</h1>
+
+      <div class="form-group">
+        <label for="store-input">Store:</label>
+        <input
+          list="stores"
+          id="store-input"
+          placeholder="Type to search…"
+          autocomplete="off"
+        />
+        <datalist id="stores"></datalist>
+      </div>
+
+      <div class="form-group avg-toggle">
+        <label>Choose Employee Averages By:</label>
+        <div>
+          <label>
+            <input type="radio" name="avg-type" value="account" checked />
+            Account Average
+          </label>
+          <label>
+            <input type="radio" name="avg-type" value="store" />
+            Store Average
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Employees (select and assign roles):</label>
+        <div class="autocomplete-container multi-select">
+          <!-- scrollable grid of tags -->
+          <div id="selected-emps" class="tags-container"></div>
+
+          <!-- moved into same box -->
+          <input
+            type="text"
+            id="emp-input"
+            class="tag-input"
+            placeholder="Type to search employees…"
+            autocomplete="off"
+            disabled
+          />
+
+          <ul id="suggestions" class="suggestions-list"></ul>
+        </div>
+        <div id="sel-info" class="selection-info"></div>
+      </div>
+
+      <div class="result">
+        <p id="workload-info"></p>
+        <button id="calc-btn" class="btn" disabled>Calculate Time</button>
+        <p id="time-result"></p>
+      </div>
+    </div>
+
+    <script src="expected.js"></script>
+  </body>
+</html>
