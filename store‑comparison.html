@@ -1,0 +1,112 @@
+<!-- store-comparison.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Store Comparison Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      /* simple styling for sorting UI */
+      th {
+        cursor: pointer;
+        position: relative;
+        user-select: none;
+      }
+      th:after {
+        content: "";
+        position: absolute;
+        right: 8px;
+        border: 6px solid transparent;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      th.sort-asc:after {
+        border-bottom-color: #000;
+      }
+      th.sort-desc:after {
+        border-top-color: #000;
+      }
+      th,
+      td {
+        padding: 0.5em 1em;
+        border-bottom: 1px solid #ccc;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 1em;
+      }
+    </style>
+    <!-- Firebase (compat versions for browser use) -->
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyCYuvMZVE9aTX_95nuZrUiv_pFHbZG_5pY",
+        authDomain: "employee-dashboard-aab04.firebaseapp.com",
+        projectId: "employee-dashboard-aab04",
+        storageBucket: "employee-dashboard-aab04.appspot.com",
+        messagingSenderId: "511125736771",
+        appId: "1:511125736771:web:cdb9a3dcadcdd23240b3f6",
+      };
+      firebase.initializeApp(firebaseConfig);
+    </script>
+    <!-- Chart.js for drawing the line chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+
+  <body>
+    <h1>Store Metrics by Account</h1>
+    <label for="account-search">Account Name:</label>
+    <input
+      type="text"
+      id="account-search"
+      list="account-list"
+      placeholder="Search account…"
+      autocomplete="off"
+    />
+    <datalist id="account-list"></datalist>
+
+    <table id="store-table">
+      <thead>
+        <tr>
+          <th data-type="string">Store</th>
+          <th data-type="number">Avg Pieces/Hour</th>
+          <th data-type="number">Avg $/Hour</th>
+          <th data-type="number">Avg SKUs/Hour</th>
+          <th data-type="number">Total Records</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- filled dynamically -->
+      </tbody>
+    </table>
+    <script>
+      const allowedUsers = [
+        "jswanson@badgerinventory.com",
+        "hkraemer@badgerinventory.com",
+        "jfalck@badgerinventory.com",
+        "spalmer@badgerinventory.com",
+        "nbrock@badgerinventory.com",
+        "lclark@badgerinventory.com",
+      ];
+      firebase.auth().onAuthStateChanged((user) => {
+        if (!user || !allowedUsers.includes(user.email.toLowerCase())) {
+          alert("Unauthorized access. Redirecting...");
+          firebase
+            .auth()
+            .signOut()
+            .then(() => {
+              window.location.href = "login.html";
+            });
+        }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1"></script>
+    <!-- Your custom filtering & chart logic -->
+    <script src="store-comparison.js"></script>
+  </body>
+</html>
