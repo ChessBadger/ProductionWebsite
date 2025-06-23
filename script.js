@@ -104,7 +104,12 @@ async function loadData() {
 
 // 2. Datalists
 function initStoreDatalist(data) {
-  ["employee-search", "account-search", "store-search"].forEach((id) => {
+  [
+    "employee-search",
+    "account-search",
+    "store-search",
+    "office-search",
+  ].forEach((id) => {
     const el = document.getElementById(id);
     el.addEventListener("input", updateDatalists);
   });
@@ -119,7 +124,12 @@ function initStoreDatalist(data) {
     });
 }
 function initEmployeeDatalist(data) {
-  ["employee-search", "account-search", "store-search"].forEach((id) => {
+  [
+    "employee-search",
+    "account-search",
+    "store-search",
+    "office-search",
+  ].forEach((id) => {
     const el = document.getElementById(id);
     el.addEventListener("input", updateDatalists);
   });
@@ -135,7 +145,12 @@ function initEmployeeDatalist(data) {
     });
 }
 function initAccountDatalist(data) {
-  ["employee-search", "account-search", "store-search"].forEach((id) => {
+  [
+    "employee-search",
+    "account-search",
+    "store-search",
+    "office-search",
+  ].forEach((id) => {
     const el = document.getElementById(id);
     el.addEventListener("input", updateDatalists);
   });
@@ -148,6 +163,19 @@ function initAccountDatalist(data) {
     .forEach((a) => {
       const opt = document.createElement("option");
       opt.value = a;
+      list.appendChild(opt);
+    });
+}
+
+function initOfficeDatalist(data) {
+  const list = document.getElementById("office-list");
+  list.innerHTML = "";
+  Array.from(new Set(data.map((i) => i.OfficeName || "")))
+    .filter((v) => v)
+    .sort()
+    .forEach((off) => {
+      const opt = document.createElement("option");
+      opt.value = off;
       list.appendChild(opt);
     });
 }
@@ -676,6 +704,9 @@ function renderTable(data) {
 function updateView(raw) {
   //   currentPage = 1;
   const storeTerm = document.getElementById("store-search").value.toLowerCase();
+  const officeTerm = document
+    .getElementById("office-search")
+    .value.toLowerCase();
   const empTerm = document
     .getElementById("employee-search")
     .value.toLowerCase();
@@ -689,6 +720,8 @@ function updateView(raw) {
 
   let filtered = raw.filter((i) => {
     if (storeTerm && !i.StoreName.toLowerCase().includes(storeTerm))
+      return false;
+    if (officeTerm && !i.OfficeName.toLowerCase().includes(officeTerm))
       return false;
     const name = `${i.FirstName} ${i.LastName}`.toLowerCase();
     if (empTerm && !name.includes(empTerm)) return false;
@@ -802,6 +835,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   initStoreDatalist(rawData);
   initEmployeeDatalist(rawData);
   initAccountDatalist(rawData);
+  initOfficeDatalist(rawData);
 
   const showGroup = document.querySelector(".show-n");
   const countInput = document.getElementById("count");
@@ -833,6 +867,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Filter & control listeners
   [
     "store-search",
+    "office-search",
     "employee-search",
     "account-search",
     "metric-select",
@@ -963,6 +998,27 @@ function updateDatalists() {
     )
   ).sort();
   updateDataList(document.getElementById("store-list"), storeOptions);
+
+  // 4) Offices: filter by Employee, Account & Store
+  const officeOptions = Array.from(
+    new Set(
+      rawData
+        .filter((i) => {
+          const empMatch = !empVal || `${i.FirstName} ${i.LastName}` === empVal;
+          const accKey =
+            empVal || accVal
+              ? normalizeAccountKey(accVal || "") ===
+                normalizeAccountKey(i.AccountName || "")
+              : true;
+          const storeMatch = !storeVal || i.StoreName === storeVal;
+          return empMatch && accKey && storeMatch;
+        })
+        .map((i) => i.OfficeName || "")
+    )
+  )
+    .filter((v) => v)
+    .sort();
+  updateDataList(document.getElementById("office-list"), officeOptions);
 }
 
 document.getElementById("employeeTrendChart").onclick = function (evt) {
