@@ -8,6 +8,7 @@ let avgRows = [];
 let tableSortKey = "date";
 let tableSortAsc = false;
 let currentPage = 1;
+let overallTrendChart = null;
 const rowsPerPage = 50;
 
 // Account alias groups
@@ -451,6 +452,142 @@ function initEmployeeTrendChart() {
   });
 }
 
+function initOverallTrendChart() {
+  const ctx = document.getElementById("overallTrendChart").getContext("2d");
+  if (overallTrendChart) overallTrendChart.destroy();
+  overallTrendChart = new Chart(ctx, {
+    type: "line",
+    data: { labels: [], datasets: [] },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true, // re-enable
+      aspectRatio: 2.5,
+      scales: {
+        /* …your scales… */
+      },
+      plugins: { legend: { position: "top" } },
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { title: { display: true, text: "Date" } },
+        yPieces: {
+          type: "linear",
+          position: "left",
+          beginAtZero: true,
+          title: { display: true, text: "Pieces & SKU per hr" },
+        },
+        yDollars: {
+          type: "linear",
+          position: "right",
+          beginAtZero: true,
+          grid: { drawOnChartArea: false },
+          title: { display: true, text: "$ per hr" },
+          ticks: { callback: (v) => "$" + v },
+        },
+      },
+      plugins: { legend: { position: "top" } },
+    },
+  });
+}
+
+function updateOverallTrendChart(filtered) {
+  const sec = document.getElementById("overall-trend-section");
+  const monthly = document.getElementById("overall-mode-toggle").checked;
+  const perStore = !monthly;
+
+  // hide if employee selected or no data
+  if (
+    document.getElementById("employee-search").value.trim() ||
+    filtered.length === 0
+  ) {
+    sec.style.display = "none";
+    return;
+  }
+
+  const byOverall = {};
+  const byStore = {};
+
+  filtered.forEach((i) => {
+    const key = monthly
+      ? i.DateOfInv.slice(0, 7) // "YYYY-MM"
+      : i.DateOfInv.slice(0, 10); // "YYYY-MM-DD"
+
+    // overall aggregation
+    if (!byOverall[key]) byOverall[key] = { p: 0, s: 0, d: 0, c: 0 };
+    byOverall[key].p += i.PiecesPerHr || 0;
+    byOverall[key].s += i.SkusPerHr || 0;
+    byOverall[key].d += i.DollarPerHr || 0;
+    byOverall[key].c++;
+
+    // per-store aggregation
+    const store = i.StoreName;
+    if (!byStore[store]) byStore[store] = {};
+    if (!byStore[store][key]) byStore[store][key] = { p: 0, s: 0, d: 0, c: 0 };
+    byStore[store][key].p += i.PiecesPerHr || 0;
+    byStore[store][key].s += i.SkusPerHr || 0;
+    byStore[store][key].d += i.DollarPerHr || 0;
+    byStore[store][key].c++;
+  });
+
+  const labels = Object.keys(byOverall).sort();
+  overallTrendChart.data.labels = labels;
+
+  if (!perStore) {
+    const metric = document.getElementById("metric-select").value;
+    overallTrendChart.data.datasets = [
+      {
+        label: "Pieces/hr",
+        data: labels.map((d) => +(byOverall[d].p / byOverall[d].c).toFixed(2)),
+        yAxisID: "yPieces",
+        fill: false,
+        tension: 0.3,
+        pointRadius: 3,
+        hidden: metric !== "all" && metric !== "pieces",
+      },
+      {
+        label: "SKU/hr",
+        data: labels.map((d) => +(byOverall[d].s / byOverall[d].c).toFixed(2)),
+        yAxisID: "yPieces",
+        fill: false,
+        tension: 0.3,
+        pointRadius: 3,
+        hidden: metric !== "all" && metric !== "skus",
+      },
+      {
+        label: "$/hr",
+        data: labels.map((d) => +(byOverall[d].d / byOverall[d].c).toFixed(2)),
+        yAxisID: "yDollars",
+        fill: false,
+        tension: 0.3,
+        pointRadius: 3,
+        hidden: metric !== "all" && metric !== "dollars",
+      },
+    ];
+  } else {
+    const metric = document.getElementById("metric-select").value;
+    const keyMap = { pieces: "p", skus: "s", dollars: "d" };
+    const k = keyMap[metric] || "p";
+    overallTrendChart.data.datasets = Object.keys(byStore)
+      .sort()
+      .map((store) => ({
+        label: store,
+        data: labels.map((d) => {
+          const g = byStore[store][d];
+          return g && g.c ? +(g[k] / g.c).toFixed(2) : null;
+        }),
+        yAxisID: metric === "dollars" ? "yDollars" : "yPieces",
+        fill: false,
+        tension: 0.3,
+        pointRadius: 3,
+      }));
+  }
+
+  overallTrendChart.update();
+  sec.style.display = "block";
+}
+
 // 10. Update employee trend
 function updateEmployeeTrendChart(raw) {
   const term = document
@@ -819,6 +956,7 @@ function updateView(raw) {
   avgRows = [groupAvg, ...individuals];
   updateChart(avgRows);
   renderAvgTable(avgRows);
+  updateOverallTrendChart(filtered);
   updateEmployeeTrendChart(raw);
 }
 
@@ -861,6 +999,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   initChart();
   initEmployeeTrendChart();
+  initOverallTrendChart();
   setupAvgSorting();
   setupMetricsTableSorting();
   setupAutoClear();
@@ -875,6 +1014,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     "count",
     "timeframe-select",
     "date-filter",
+    "overall-mode-toggle",
   ].forEach((id) => {
     const el = document.getElementById(id);
     el.addEventListener("input", () => {

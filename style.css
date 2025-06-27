@@ -431,3 +431,10 @@ input:checked + .slider:before {
   border-left: 4px solid #d32f2f;
   display: block; /* un-hide */
 }
+
+/* constrain all chart-container canvases, or scope to just the overall one */
+#overall-trend-section canvas {
+  width: 100%;
+  height: 700px !important; /* fixed height */
+  max-height: 500px;
+}
