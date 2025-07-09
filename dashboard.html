@@ -222,6 +222,7 @@
         "spalmer@badgerinventory.com",
         "nbrock@badgerinventory.com",
         "lclark@badgerinventory.com",
+        "kgrohall@badgerinventory.com",
       ];
       firebase.auth().onAuthStateChanged((user) => {
         if (!user || !allowedUsers.includes(user.email.toLowerCase())) {
