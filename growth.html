@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <title>Employee Growth Tracker</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyCYuvMZVE9aTX_95nuZrUiv_pFHbZG_5pY",
+        authDomain: "employee-dashboard-aab04.firebaseapp.com",
+        projectId: "employee-dashboard-aab04",
+        storageBucket: "employee-dashboard-aab04.appspot.com",
+        messagingSenderId: "511125736771",
+        appId: "1:511125736771:web:cdb9a3dcadcdd23240b3f6",
+      };
+      firebase.initializeApp(firebaseConfig);
+    </script>
+  </head>
+  <body>
+    <script>
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = "login.html"; // redirect to login
+        }
+      });
+    </script>
+    <header>
+      <h1>Employee Growth Tracker</h1>
+      <nav>
+        <a href="dashboard.html">← Production Dashboard</a>
+      </nav>
+    </header>
+    <main>
+      <section class="controls">
+        <label>
+          Start Date for Growth Calculation:
+          <input type="date" id="start-date-filter" />
+        </label>
+        <button type="button" id="calculate-growth-btn">
+          Calculate Growth
+        </button>
+      </section>
+
+      <!-- New section for overall summary -->
+      <section
+        id="overall-growth-summary"
+        class="summary-card"
+        style="display: none"
+      >
+        <h3>Overall Growth Summary</h3>
+        <div class="summary-grid">
+          <div>
+            <span class="summary-label">Baseline Pieces/hr:</span>
+            <span id="overall-baseline" class="summary-value"></span>
+          </div>
+          <div>
+            <span class="summary-label">Current Pieces/hr:</span>
+            <span id="overall-current" class="summary-value"></span>
+          </div>
+          <div>
+            <span class="summary-label">Growth (Pieces/hr):</span>
+            <span id="overall-growth" class="summary-value"></span>
+          </div>
+          <div>
+            <span class="summary-label">Growth %:</span>
+            <span id="overall-growth-percentage" class="summary-value"></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="table-container">
+        <h2>Top Employee Growth</h2>
+        <table id="growthTable" class="responsive">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Baseline Pieces/hr</th>
+              <th>Current Pieces/hr</th>
+              <th>Growth (Pieces/hr)</th>
+              <th>Growth %</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3"></script>
+    <script src="growth.js"></script>
+  </body>
+</html>
