@@ -93,7 +93,8 @@
 
       auth.onAuthStateChanged((user) => {
         if (user && allowedUsers.includes(user.email.toLowerCase())) {
-          window.location.href = "dashboard.html"; // or index.html
+          // replace the current entry so “Back” won’t hit this login page again
+          window.location.replace("https://chessbadger.github.io/ProdWeb2/");
         } else if (user) {
           alert("Unauthorized access.");
           auth.signOut();
