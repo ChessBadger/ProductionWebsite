@@ -4,8 +4,8 @@ import subprocess
 import os
 
 # Path to the uploaded Excel file
-excel_path = r'C:\Users\Laptop 122\Desktop\Store Prep\06 Employee Reports\Website\EmployeeProductionExport.xlsx'
-repo_path = r'C:\Users\Laptop 122\Desktop\Store Prep\06 Employee Reports\Website'  # Local path to your git repo
+excel_path = r'C:\Users\Laptop 122\Desktop\Store Prep\06 Employee Reports\old web\EmployeeProductionExport.xlsx'
+repo_path = r'C:\Users\Laptop 122\Desktop\Store Prep\06 Employee Reports\old web'  # Local path to your git repo
 
 
 
@@ -19,7 +19,7 @@ json_data = {
 }
 
 # Write the combined JSON to a file, using default=str to serialize dates/times
-output_path = r'C:\Users\Laptop 122\Desktop\Store Prep\06 Employee Reports\Website\EmployeeProductionExport.json'
+output_path = r'C:\Users\Laptop 122\Desktop\Store Prep\06 Employee Reports\old web\EmployeeProductionExport.json'
 
 with open(output_path, 'w', encoding='utf-8') as f:
     json.dump(json_data, f, indent=4, ensure_ascii=False, default=str)
