@@ -1,118 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Login</title>
     <meta charset="UTF-8" />
+    <meta
+      http-equiv="refresh"
+      content="10;url=https://chessbadger.github.io/ProdWeb2/"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
-
+    <title>Page Moved</title>
     <style>
       body {
-        background: #f5f7fa;
-        font-family: "Inter", sans-serif;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        margin: 0;
-      }
-
-      .login-container {
-        background: #fff;
-        padding: 2rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        font-family: Arial, sans-serif;
         text-align: center;
-        max-width: 360px;
-        width: 100%;
+        padding: 50px;
+        background-color: #f5f5f5;
+        color: #333;
       }
-
-      h2 {
-        margin-bottom: 1.5rem;
-        font-size: 1.6rem;
-        color: #2e3a59;
+      a {
+        color: #0066cc;
+        text-decoration: none;
+        font-weight: bold;
       }
-
-      .google-btn {
+      a:hover {
+        text-decoration: underline;
+      }
+      .container {
         background: #fff;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        padding: 10px 16px;
-        font-size: 1rem;
-        color: #444;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        cursor: pointer;
-        transition: box-shadow 0.2s;
-      }
-
-      .google-btn:hover {
-        box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
-      }
-
-      .google-btn img {
-        height: 20px;
+        padding: 30px;
+        margin: auto;
+        max-width: 500px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       }
     </style>
-
-    <script>
-      // Firebase Config
-      const firebaseConfig = {
-        apiKey: "AIzaSyCYuvMZVE9aTX_95nuZrUiv_pFHbZG_5pY",
-        authDomain: "employee-dashboard-aab04.firebaseapp.com",
-        projectId: "employee-dashboard-aab04",
-        storageBucket: "employee-dashboard-aab04.appspot.com",
-        messagingSenderId: "511125736771",
-        appId: "1:511125736771:web:cdb9a3dcadcdd23240b3f6",
-      };
-      firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth();
-
-      // Whitelist
-      const allowedUsers = [
-        "jswanson@badgerinventory.com",
-        "hkraemer@badgerinventory.com",
-        "jfalck@badgerinventory.com",
-        "spalmer@badgerinventory.com",
-        "nbrock@badgerinventory.com",
-        "lclark@badgerinventory.com",
-        "kgrohall@badgerinventory.com",
-      ];
-
-      function signInWithGoogle() {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch((err) => {
-          alert("Google sign-in error: " + err.message);
-        });
-      }
-
-      auth.onAuthStateChanged((user) => {
-        if (user && allowedUsers.includes(user.email.toLowerCase())) {
-          // replace the current entry so “Back” won’t hit this login page again
-          window.location.replace("https://chessbadger.github.io/ProdWeb2/");
-        } else if (user) {
-          alert("Unauthorized access.");
-          auth.signOut();
-        }
-      });
-    </script>
   </head>
-
   <body>
-    <div class="login-container">
-      <h2>Employee Dashboard Login</h2>
-      <button class="google-btn" onclick="signInWithGoogle()">
-        <img
-          src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-          alt="Google logo"
-        />
-        Sign in with Google
-      </button>
+    <div class="container">
+      <h1>Site Moved</h1>
+      <p>The page you are looking for has been moved to a new location.</p>
+      <p>
+        Please update your bookmarks and visit the new site here:<br />
+        <a href="https://chessbadger.github.io/ProdWeb2/"
+          >https://chessbadger.github.io/ProdWeb2/</a
+        >
+      </p>
+      <p>
+        If you are not redirected automatically in a about 10 seconds, click the
+        link above.
+      </p>
     </div>
   </body>
 </html>
